@@ -30,6 +30,6 @@ fun CityScreen(navController: NavController) {
                 contentDescription = "Settings"
             )
         }
-        Text(text = "City")
+        Text(text = "Place")
     }
 }

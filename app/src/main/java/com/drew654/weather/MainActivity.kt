@@ -7,10 +7,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.drew654.weather.models.Screen
+import com.drew654.weather.ui.screens.CityScreen
+import com.drew654.weather.ui.screens.SettingsScreen
 import com.drew654.weather.ui.theme.WeatherTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,28 +23,21 @@ class MainActivity : ComponentActivity() {
         setContent {
             WeatherTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.City.route,
                         modifier = Modifier.padding(innerPadding)
-                    )
+                    ) {
+                        composable(Screen.City.route) {
+                            CityScreen(navController = navController)
+                        }
+                        composable(Screen.Settings.route) {
+                            SettingsScreen()
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WeatherTheme {
-        Greeting("Android")
     }
 }

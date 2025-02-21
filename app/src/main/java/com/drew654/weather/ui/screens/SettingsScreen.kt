@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import com.drew654.weather.models.Place
 import com.drew654.weather.models.WeatherViewModel
 
@@ -27,8 +31,8 @@ fun SettingsScreen(
 ) {
     val places = weatherViewModel.places.collectAsState()
     val name = remember { mutableStateOf("") }
-    val latitude = remember { mutableDoubleStateOf(0.0) }
-    val longitude = remember { mutableDoubleStateOf(0.0) }
+    val latitude = remember { mutableStateOf("") }
+    val longitude = remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -47,16 +51,31 @@ fun SettingsScreen(
             OutlinedTextField(
                 value = name.value,
                 onValueChange = { name.value = it },
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Words,
+                    imeAction = ImeAction.Next
+                ),
                 label = { Text("Name") }
             )
             OutlinedTextField(
-                value = latitude.doubleValue.toString(),
-                onValueChange = { latitude.doubleValue = it.toDoubleOrNull() ?: 0.0 },
+                value = latitude.value.toString(),
+                onValueChange = { latitude.value = it },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
                 label = { Text("Latitude") }
             )
             OutlinedTextField(
-                value = longitude.doubleValue.toString(),
-                onValueChange = { longitude.doubleValue = it.toDoubleOrNull() ?: 0.0 },
+                value = longitude.value.toString(),
+                onValueChange = { longitude.value = it },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                ),
                 label = { Text("Longitude") }
             )
             Button(
@@ -64,13 +83,13 @@ fun SettingsScreen(
                     weatherViewModel.addPlace(
                         Place(
                             name.value,
-                            latitude.doubleValue,
-                            longitude.doubleValue
+                            latitude.value.toDoubleOrNull() ?: 0.0,
+                            longitude.value.toDoubleOrNull() ?: 0.0
                         )
                     )
                     name.value = ""
-                    latitude.doubleValue = 0.0
-                    longitude.doubleValue = 0.0
+                    latitude.value = ""
+                    longitude.value = ""
                 },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {

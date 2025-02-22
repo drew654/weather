@@ -51,7 +51,10 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         ) {
-                            PlaceScreen()
+                            PlaceScreen(
+                                id = it.arguments?.getString("id")!!,
+                                weatherViewModel = weatherViewModel
+                            )
                         }
                         composable(Screen.NewPlace.route) {
                             NewPlaceScreen(

@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,6 +38,14 @@ fun NewPlaceScreen(weatherViewModel: WeatherViewModel, navController: NavControl
     val name = remember { mutableStateOf("") }
     val latitude = remember { mutableStateOf("") }
     val longitude = remember { mutableStateOf("") }
+    val nominatimResponse = weatherViewModel.nominatimResponse.collectAsState()
+
+    LaunchedEffect(nominatimResponse.value) {
+        if (nominatimResponse.value.isNotEmpty()) {
+            latitude.value = nominatimResponse.value[0].latitude.toString()
+            longitude.value = nominatimResponse.value[0].longitude.toString()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -82,6 +93,13 @@ fun NewPlaceScreen(weatherViewModel: WeatherViewModel, navController: NavControl
                 ),
                 label = { Text("Longitude") }
             )
+            OutlinedButton(
+                onClick = {
+                    weatherViewModel.searchNominatim(name.value)
+                }
+            ) {
+                Text(text = "Search")
+            }
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = {
@@ -95,6 +113,7 @@ fun NewPlaceScreen(weatherViewModel: WeatherViewModel, navController: NavControl
                     name.value = ""
                     latitude.value = ""
                     longitude.value = ""
+                    weatherViewModel.clearNominatimResponse()
                     navController.popBackStack()
                 }
             ) {

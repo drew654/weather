@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
+import com.drew654.weather.ui.screens.NewPlaceScreen
 import com.drew654.weather.ui.screens.PlaceListScreen
 import com.drew654.weather.ui.screens.PlaceScreen
 import com.drew654.weather.ui.screens.SettingsScreen
@@ -51,6 +52,12 @@ class MainActivity : ComponentActivity() {
                             )
                         ) {
                             PlaceScreen()
+                        }
+                        composable(Screen.NewPlace.route) {
+                            NewPlaceScreen(
+                                weatherViewModel = weatherViewModel,
+                                navController = navController
+                            )
                         }
                         composable(Screen.Settings.route) {
                             SettingsScreen(weatherViewModel = weatherViewModel)

@@ -17,6 +17,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class WeatherViewModel(application: Application) : AndroidViewModel(application) {
     private val _places = MutableStateFlow<List<Place>>(emptyList())
@@ -24,6 +26,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     private val _nominatimResponse = MutableStateFlow<List<Place>>(emptyList())
     val nominatimResponse: StateFlow<List<Place>> = _nominatimResponse.asStateFlow()
+
+    private val _forecast = MutableStateFlow<Forecast?>(null)
+    val forecast: StateFlow<Forecast?> = _forecast.asStateFlow()
 
     fun addPlace(place: Place) {
         _places.value = _places.value + place
@@ -73,5 +78,42 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearNominatimResponse() {
         _nominatimResponse.value = emptyList()
+    }
+
+    fun fetchForecast(place: Place) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val client = OkHttpClient()
+                val url =
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m&temperature_unit=fahrenheit&forecast_days=1"
+                val request = Request.Builder()
+                    .url(url)
+                    .build()
+
+                try {
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            throw IOException("Unexpected code $response")
+                        }
+
+                        val responseBody = response.body?.string() ?: ""
+                        val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
+                        val hourly = jsonObject["hourly"]?.jsonObject
+                        val time = hourly?.get("time")?.jsonArray
+                        val temperature = hourly?.get("temperature_2m")?.jsonArray
+                        val formatter = DateTimeFormatter.ISO_DATE_TIME
+                        val hourlyTemperature = time?.mapIndexed { index, element ->
+                            val localDateTime = LocalDateTime.parse(element.jsonPrimitive.content, formatter)
+                            val temperatureValue = temperature?.get(index)?.jsonPrimitive?.double ?: 0.0
+                            Pair(localDateTime, temperatureValue)
+                        }
+
+                        _forecast.value = Forecast(hourlyTemperature = hourlyTemperature ?: emptyList())
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 }

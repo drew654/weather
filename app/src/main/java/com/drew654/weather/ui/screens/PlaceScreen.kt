@@ -34,6 +34,9 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
                 items(forecast.value?.hourlyTemperature ?: emptyList()) { hour ->
                     Text(text = "${hour.first} - ${hour.second}")
                 }
+                items(forecast.value?.hourlyWeatherCode ?: emptyList()) { hour ->
+                    Text(text = "${hour.first} - ${hour.second}")
+                }
             }
         }
     }

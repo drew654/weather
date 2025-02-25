@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.double
+import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -85,7 +86,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m&temperature_unit=fahrenheit&forecast_days=1"
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=auto&forecast_days=1"
                 val request = Request.Builder()
                     .url(url)
                     .build()
@@ -101,14 +102,27 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val hourly = jsonObject["hourly"]?.jsonObject
                         val time = hourly?.get("time")?.jsonArray
                         val temperature = hourly?.get("temperature_2m")?.jsonArray
+                        val weatherCode = hourly?.get("weather_code")?.jsonArray
                         val formatter = DateTimeFormatter.ISO_DATE_TIME
                         val hourlyTemperature = time?.mapIndexed { index, element ->
-                            val localDateTime = LocalDateTime.parse(element.jsonPrimitive.content, formatter)
-                            val temperatureValue = temperature?.get(index)?.jsonPrimitive?.double ?: 0.0
+                            val localDateTime =
+                                LocalDateTime.parse(element.jsonPrimitive.content, formatter)
+                            val temperatureValue =
+                                temperature?.get(index)?.jsonPrimitive?.double ?: 0.0
                             Pair(localDateTime, temperatureValue)
                         }
+                        val hourlyWeatherCode = time?.mapIndexed { index, element ->
+                            val localDateTime =
+                                LocalDateTime.parse(element.jsonPrimitive.content, formatter)
+                            val weatherCodeValue =
+                                weatherCode?.get(index)?.jsonPrimitive?.int ?: 0
+                            Pair(localDateTime, weatherCodeValue)
+                        }
 
-                        _forecast.value = Forecast(hourlyTemperature = hourlyTemperature ?: emptyList())
+                        _forecast.value = Forecast(
+                            hourlyTemperature = hourlyTemperature ?: emptyList(),
+                            hourlyWeatherCode = hourlyWeatherCode ?: emptyList()
+                        )
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

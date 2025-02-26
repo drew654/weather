@@ -15,10 +15,12 @@ import com.drew654.weather.models.WeatherViewModel
 @Composable
 fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
     val place = weatherViewModel.getPlace(id)
+    val currentWeather = weatherViewModel.currentWeather.collectAsState()
     val forecast = weatherViewModel.forecast.collectAsState()
 
     LaunchedEffect(place) {
         if (place != null) {
+            weatherViewModel.fetchCurrentWeather(place)
             weatherViewModel.fetchForecast(place)
         }
     }
@@ -29,6 +31,19 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
         Column {
             Text(text = place?.name ?: "")
             Text(text = "Location: ${place?.latitude}, ${place?.longitude}")
+            Text(text = "Current Weather")
+            Text(text = "Temperature: ${currentWeather.value?.temperature}")
+            Text(text = "Relative Humidity: ${currentWeather.value?.relativeHumidity}")
+            Text(text = "Apparent Temperature: ${currentWeather.value?.apparentTemperature}")
+            Text(text = "Is Day: ${currentWeather.value?.isDay}")
+            Text(text = "Precipitation: ${currentWeather.value?.precipitation}")
+            Text(text = "Rain: ${currentWeather.value?.rain}")
+            Text(text = "Showers: ${currentWeather.value?.showers}")
+            Text(text = "Snowfall: ${currentWeather.value?.snowfall}")
+            Text(text = "Weather Code: ${currentWeather.value?.weatherCode}")
+            Text(text = "Wind Speed: ${currentWeather.value?.windSpeed}")
+            Text(text = "Wind Direction: ${currentWeather.value?.windDirection}")
+            Text(text = "Wind Gusts: ${currentWeather.value?.windGusts}")
             Text(text = "Forecast")
             LazyColumn {
                 items(forecast.value?.hourlyTemperature ?: emptyList()) { hour ->

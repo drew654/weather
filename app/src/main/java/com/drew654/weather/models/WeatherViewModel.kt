@@ -1,12 +1,16 @@
 package com.drew654.weather.models
 
 import android.app.Application
+import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.drew654.weather.data.PlaceListSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -20,8 +24,12 @@ import okhttp3.Request
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.collections.plus
+
 
 class WeatherViewModel(application: Application) : AndroidViewModel(application) {
+    private val dataStore: DataStore<List<Place>> = application.dataStore
+
     private val _places = MutableStateFlow<List<Place>>(emptyList())
     val places: StateFlow<List<Place>> = _places.asStateFlow()
 
@@ -34,12 +42,30 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _currentWeather = MutableStateFlow<CurrentWeather?>(null)
     val currentWeather: StateFlow<CurrentWeather?> = _currentWeather.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            dataStore.data.collect { savedPlaces ->
+                _places.update { savedPlaces }
+            }
+        }
+    }
+
     fun addPlace(place: Place) {
-        _places.value = _places.value + place
+        _places.update { it + place }
+        savePlaces()
     }
 
     fun removePlace(place: Place) {
-        _places.value = _places.value - place
+        _places.update { it - place }
+        savePlaces()
+    }
+
+    private fun savePlaces() {
+        viewModelScope.launch {
+            dataStore.updateData {
+                _places.value
+            }
+        }
     }
 
     fun getPlace(id: String): Place? {
@@ -187,3 +213,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 }
+
+val Application.dataStore by dataStore(
+    fileName = "places.json",
+    serializer = PlaceListSerializer
+)

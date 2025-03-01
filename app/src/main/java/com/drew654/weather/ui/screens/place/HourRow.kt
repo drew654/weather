@@ -40,13 +40,12 @@ fun HourRow(
         Text(text = "$hour")
         Text(text = "$weatherCode")
         Text(text = "$precipitationProbability%")
-        Text(text = "$temperature")
-        Text(text = "$windSpeed mph")
-        Text(text = degToHdg(windDirection))
+        Text(text = "$temperature°")
         Icon(
             painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
             contentDescription = "Add Place",
-            modifier = Modifier.rotate(windDirection.toFloat() - 90)
+            modifier = Modifier.rotate(windDirection.toFloat() + 90)
         )
+        Text(text = "$windSpeed mph ${degToHdg(windDirection)}")
     }
 }

@@ -1,10 +1,10 @@
-package com.drew654.weather.ui.screens
+package com.drew654.weather.ui.screens.place
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,11 +46,11 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
             Text(text = "Wind Gusts: ${currentWeather.value?.windGusts}")
             Text(text = "Forecast")
             LazyColumn {
-                items(forecast.value?.hourlyTemperature ?: emptyList()) { hour ->
-                    Text(text = "${hour.first} - ${hour.second}")
+                itemsIndexed(forecast.value?.hourlyTemperature ?: emptyList()) { index, hour ->
+                    Text(text = "$index - $hour")
                 }
-                items(forecast.value?.hourlyWeatherCode ?: emptyList()) { hour ->
-                    Text(text = "${hour.first} - ${hour.second}")
+                itemsIndexed(forecast.value?.hourlyWeatherCode ?: emptyList()) { index, hour ->
+                    Text(text = "$index - $hour")
                 }
             }
         }

@@ -22,8 +22,6 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.collections.plus
 
 
@@ -129,23 +127,13 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val responseBody = response.body?.string() ?: ""
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val hourly = jsonObject["hourly"]?.jsonObject
-                        val time = hourly?.get("time")?.jsonArray
-                        val temperature = hourly?.get("temperature_2m")?.jsonArray
-                        val weatherCode = hourly?.get("weather_code")?.jsonArray
-                        val formatter = DateTimeFormatter.ISO_DATE_TIME
-                        val hourlyTemperature = time?.mapIndexed { index, element ->
-                            val localDateTime =
-                                LocalDateTime.parse(element.jsonPrimitive.content, formatter)
-                            val temperatureValue =
-                                temperature?.get(index)?.jsonPrimitive?.double ?: 0.0
-                            Pair(localDateTime, temperatureValue)
+                        val temperatures = hourly?.get("temperature_2m")?.jsonArray
+                        val weatherCodes = hourly?.get("weather_code")?.jsonArray
+                        val hourlyTemperature = temperatures?.mapIndexed { index, element ->
+                            temperatures[index].jsonPrimitive.double
                         }
-                        val hourlyWeatherCode = time?.mapIndexed { index, element ->
-                            val localDateTime =
-                                LocalDateTime.parse(element.jsonPrimitive.content, formatter)
-                            val weatherCodeValue =
-                                weatherCode?.get(index)?.jsonPrimitive?.int ?: 0
-                            Pair(localDateTime, weatherCodeValue)
+                        val hourlyWeatherCode = weatherCodes?.mapIndexed { index, element ->
+                            weatherCodes[index].jsonPrimitive.int
                         }
 
                         _forecast.value = Forecast(
@@ -164,7 +152,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val url = "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&forecast_days=1"
+                val url =
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&forecast_days=1"
                 val request = Request.Builder()
                     .url(url)
                     .build()
@@ -179,8 +168,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val current = jsonObject["current"]?.jsonObject
                         val temperature = current?.get("temperature_2m")?.jsonPrimitive?.double
-                        val relativeHumidity = current?.get("relative_humidity_2m")?.jsonPrimitive?.double
-                        val apparentTemperature = current?.get("apparent_temperature")?.jsonPrimitive?.double
+                        val relativeHumidity =
+                            current?.get("relative_humidity_2m")?.jsonPrimitive?.double
+                        val apparentTemperature =
+                            current?.get("apparent_temperature")?.jsonPrimitive?.double
                         val isDay = current?.get("is_day")?.jsonPrimitive?.int == 1
                         val precipitation = current?.get("precipitation")?.jsonPrimitive?.double
                         val rain = current?.get("rain")?.jsonPrimitive?.double

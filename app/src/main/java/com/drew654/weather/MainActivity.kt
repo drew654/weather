@@ -18,7 +18,7 @@ import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.ui.screens.NewPlaceScreen
 import com.drew654.weather.ui.screens.PlaceListScreen
-import com.drew654.weather.ui.screens.PlaceScreen
+import com.drew654.weather.ui.screens.place.PlaceScreen
 import com.drew654.weather.ui.screens.SettingsScreen
 import com.drew654.weather.ui.theme.WeatherTheme
 

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,12 +44,20 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
             Text(text = "Wind Direction: ${currentWeather.value?.windDirection}")
             Text(text = "Wind Gusts: ${currentWeather.value?.windGusts}")
             Text(text = "Forecast")
-            LazyColumn {
-                itemsIndexed(forecast.value?.hourlyTemperature ?: emptyList()) { index, hour ->
-                    Text(text = "$index - $hour")
-                }
-                itemsIndexed(forecast.value?.hourlyWeatherCode ?: emptyList()) { index, hour ->
-                    Text(text = "$index - $hour")
+            if (forecast.value?.hourlyTemperature != null && forecast.value?.hourlyWeatherCode != null) {
+                LazyColumn {
+                    items(forecast.value?.hourlyTemperature?.size ?: 0) {
+                        HourRow(
+                            hour = it,
+                            weatherCode = forecast.value?.hourlyWeatherCode?.get(it) ?: 0,
+                            precipitationProbability = forecast.value?.hourlyPrecipitationProbability?.get(
+                                it
+                            ) ?: 0,
+                            temperature = forecast.value?.hourlyTemperature?.get(it) ?: 0.0,
+                            windSpeed = forecast.value?.hourlyWindSpeed?.get(it) ?: 0.0,
+                            windDirection = forecast.value?.hourlyWindDirection?.get(it) ?: 0
+                        )
+                    }
                 }
             }
         }

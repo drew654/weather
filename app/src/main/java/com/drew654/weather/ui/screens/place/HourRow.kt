@@ -14,18 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.drew654.weather.R
-
-fun degToHdg(deg: Int): String {
-    val directions = listOf(
-        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-        "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
-    )
-    val index = ((deg / 22.5) + 0.5).toInt() % 16
-    return directions[index]
-}
+import com.drew654.weather.utils.degToHdg
+import com.drew654.weather.utils.getWeatherDescription
+import com.drew654.weather.utils.getWeatherIconUrl
 
 @Composable
 fun HourRow(
@@ -34,8 +30,10 @@ fun HourRow(
     precipitationProbability: Int,
     temperature: Double,
     windSpeed: Double,
-    windDirection: Int
+    windDirection: Int,
+    isDay: Boolean
 ) {
+    val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
 
@@ -57,7 +55,15 @@ fun HourRow(
                 .fillMaxWidth()
         ) {
             Spacer(Modifier.width(screenWidth * 0.2f))
-            Text(text = "$weatherCode")
+            AsyncImage(
+                model = getWeatherIconUrl(weatherCode = weatherCode, isDay = isDay),
+                contentDescription = getWeatherDescription(
+                    context = context,
+                    weatherCode = weatherCode,
+                    isDay = isDay
+                ),
+                modifier = Modifier.size(32.dp)
+            )
         }
         Row(
             modifier = Modifier

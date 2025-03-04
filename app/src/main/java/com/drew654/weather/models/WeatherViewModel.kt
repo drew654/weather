@@ -22,6 +22,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.collections.plus
 
 
@@ -39,6 +41,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     private val _currentWeather = MutableStateFlow<CurrentWeather?>(null)
     val currentWeather: StateFlow<CurrentWeather?> = _currentWeather.asStateFlow()
+
+    private val _dailyWeather = MutableStateFlow<DailyWeather?>(null)
+    val dailyWeather: StateFlow<DailyWeather?> = _dailyWeather.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -129,7 +134,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val hourly = jsonObject["hourly"]?.jsonObject
                         val temperatures = hourly?.get("temperature_2m")?.jsonArray
                         val weatherCodes = hourly?.get("weather_code")?.jsonArray
-                        val precipitationProbabilities = hourly?.get("precipitation_probability")?.jsonArray
+                        val precipitationProbabilities =
+                            hourly?.get("precipitation_probability")?.jsonArray
                         val windSpeeds = hourly?.get("wind_speed_10m")?.jsonArray
                         val windDirections = hourly?.get("wind_direction_10m")?.jsonArray
 
@@ -139,9 +145,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val hourlyWeatherCode = weatherCodes?.mapIndexed { index, element ->
                             weatherCodes[index].jsonPrimitive.int
                         }
-                        val hourlyPrecipitationProbabilities = precipitationProbabilities?.mapIndexed { index, element ->
-                            precipitationProbabilities[index].jsonPrimitive.int
-                        }
+                        val hourlyPrecipitationProbabilities =
+                            precipitationProbabilities?.mapIndexed { index, element ->
+                                precipitationProbabilities[index].jsonPrimitive.int
+                            }
                         val hourlyWindSpeed = windSpeeds?.mapIndexed { index, element ->
                             windSpeeds[index].jsonPrimitive.double
                         }
@@ -152,7 +159,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         _forecast.value = Forecast(
                             hourlyTemperature = hourlyTemperature ?: emptyList(),
                             hourlyWeatherCode = hourlyWeatherCode ?: emptyList(),
-                            hourlyPrecipitationProbability = hourlyPrecipitationProbabilities ?: emptyList(),
+                            hourlyPrecipitationProbability = hourlyPrecipitationProbabilities
+                                ?: emptyList(),
                             hourlyWindSpeed = hourlyWindSpeed ?: emptyList(),
                             hourlyWindDirection = hourlyWindDirection ?: emptyList()
                         )
@@ -211,6 +219,40 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                             windSpeed = windSpeed ?: 0.0,
                             windDirection = windDirection ?: 0,
                             windGusts = windGusts ?: 0.0
+                        )
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun fetchDailyWeather(place: Place) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val client = OkHttpClient()
+                val url =
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=1"
+                val request = Request.Builder()
+                    .url(url)
+                    .build()
+
+                try {
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            throw IOException("Unexpected code $response")
+                        }
+
+                        val responseBody = response.body?.string() ?: ""
+                        val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
+                        val daily = jsonObject["daily"]?.jsonObject
+                        val sunrise = daily?.get("sunrise")?.jsonArray?.get(0)?.jsonPrimitive?.content
+                        val sunset = daily?.get("sunset")?.jsonArray?.get(0)?.jsonPrimitive?.content
+
+                        _dailyWeather.value = DailyWeather(
+                            sunrise = LocalDateTime.parse(sunrise, DateTimeFormatter.ISO_DATE_TIME),
+                            sunset = LocalDateTime.parse(sunset, DateTimeFormatter.ISO_DATE_TIME)
                         )
                     }
                 } catch (e: Exception) {

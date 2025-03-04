@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore)
+    implementation(libs.coil.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -10,17 +10,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import com.drew654.weather.models.WeatherViewModel
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
     val place = weatherViewModel.getPlace(id)
     val currentWeather = weatherViewModel.currentWeather.collectAsState()
     val forecast = weatherViewModel.forecast.collectAsState()
+    val dailyWeather = weatherViewModel.dailyWeather.collectAsState()
 
     LaunchedEffect(place) {
         if (place != null) {
             weatherViewModel.fetchCurrentWeather(place)
             weatherViewModel.fetchForecast(place)
+            weatherViewModel.fetchDailyWeather(place)
         }
     }
 
@@ -43,6 +46,8 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
             Text(text = "Wind Speed: ${currentWeather.value?.windSpeed}")
             Text(text = "Wind Direction: ${currentWeather.value?.windDirection}")
             Text(text = "Wind Gusts: ${currentWeather.value?.windGusts}")
+            Text(text = "Sunrise: ${DateTimeFormatter.ofPattern("HH:mm").format(dailyWeather.value?.sunrise)}")
+            Text(text = "Sunset: ${DateTimeFormatter.ofPattern("HH:mm").format(dailyWeather.value?.sunset)}")
             Text(text = "Forecast")
             if (forecast.value?.hourlyTemperature != null && forecast.value?.hourlyWeatherCode != null) {
                 LazyColumn {
@@ -55,7 +60,9 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
                             ) ?: 0,
                             temperature = forecast.value?.hourlyTemperature?.get(it) ?: 0.0,
                             windSpeed = forecast.value?.hourlyWindSpeed?.get(it) ?: 0.0,
-                            windDirection = forecast.value?.hourlyWindDirection?.get(it) ?: 0
+                            windDirection = forecast.value?.hourlyWindDirection?.get(it) ?: 0,
+                            isDay = it > (dailyWeather.value?.sunrise?.hour ?: 0)
+                                    && it <= (dailyWeather.value?.sunset?.hour ?: 0)
                         )
                     }
                 }

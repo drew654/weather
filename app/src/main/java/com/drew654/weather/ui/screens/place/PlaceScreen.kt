@@ -46,8 +46,20 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
             Text(text = "Wind Speed: ${currentWeather.value?.windSpeed}")
             Text(text = "Wind Direction: ${currentWeather.value?.windDirection}")
             Text(text = "Wind Gusts: ${currentWeather.value?.windGusts}")
-            Text(text = "Sunrise: ${DateTimeFormatter.ofPattern("HH:mm").format(dailyWeather.value?.sunrise)}")
-            Text(text = "Sunset: ${DateTimeFormatter.ofPattern("HH:mm").format(dailyWeather.value?.sunset)}")
+            Text(
+                text = "Sunrise: ${
+                    if (dailyWeather.value?.sunrise == null) "" else DateTimeFormatter.ofPattern(
+                        "HH:mm"
+                    ).format(dailyWeather.value?.sunrise)
+                }"
+            )
+            Text(
+                text = "Sunset: ${
+                    if (dailyWeather.value?.sunset == null) "" else DateTimeFormatter.ofPattern(
+                        "HH:mm"
+                    ).format(dailyWeather.value?.sunset)
+                }"
+            )
             Text(text = "Forecast")
             if (forecast.value?.hourlyTemperature != null && forecast.value?.hourlyWeatherCode != null) {
                 LazyColumn {

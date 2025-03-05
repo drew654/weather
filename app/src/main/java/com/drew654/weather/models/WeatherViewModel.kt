@@ -233,7 +233,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&daily=sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=1"
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=1"
                 val request = Request.Builder()
                     .url(url)
                     .build()
@@ -247,10 +247,14 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val responseBody = response.body?.string() ?: ""
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val daily = jsonObject["daily"]?.jsonObject
+                        val maxTemperature = daily?.get("temperature_2m_max")?.jsonArray
+                        val minTemperature = daily?.get("temperature_2m_min")?.jsonArray
                         val sunrise = daily?.get("sunrise")?.jsonArray?.get(0)?.jsonPrimitive?.content
                         val sunset = daily?.get("sunset")?.jsonArray?.get(0)?.jsonPrimitive?.content
 
                         _dailyWeather.value = DailyWeather(
+                            maxTemperature = maxTemperature?.get(0)?.jsonPrimitive?.double ?: 0.0,
+                            minTemperature = minTemperature?.get(0)?.jsonPrimitive?.double ?: 0.0,
                             sunrise = LocalDateTime.parse(sunrise, DateTimeFormatter.ISO_DATE_TIME),
                             sunset = LocalDateTime.parse(sunset, DateTimeFormatter.ISO_DATE_TIME)
                         )

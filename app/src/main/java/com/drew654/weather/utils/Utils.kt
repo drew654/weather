@@ -5,7 +5,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
-import java.time.LocalDateTime
 
 fun degToHdg(deg: Int): String {
     val directions = listOf(
@@ -35,6 +34,6 @@ fun getWeatherDescription(context: Context, weatherCode: Int, isDay: Boolean): S
     }
 }
 
-fun hourIsDay(hour: Int, sunrise: LocalDateTime, sunset: LocalDateTime): Boolean {
-    return hour > sunrise.hour && hour <= sunset.hour
+fun String.capitalizeWord(): String {
+    return this.lowercase().replaceFirstChar { it.uppercase() }
 }

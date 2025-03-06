@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.drew654.weather.models.WeatherViewModel
+import com.drew654.weather.utils.capitalizeWord
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
-import com.drew654.weather.utils.hourIsDay
 import java.time.LocalDateTime
 
 @Composable
@@ -32,7 +32,7 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
     val currentWeather = weatherViewModel.currentWeather.collectAsState()
     val forecast = weatherViewModel.forecast.collectAsState()
     val dailyWeather = weatherViewModel.dailyWeather.collectAsState()
-    val remainingHours = (LocalDateTime.now().hour until 24).toList()
+    val currentHour = LocalDateTime.now().hour
 
     LaunchedEffect(place) {
         if (place != null) {
@@ -93,23 +93,33 @@ fun PlaceScreen(id: String, weatherViewModel: WeatherViewModel) {
                 Spacer(modifier = Modifier.height(16.dp))
                 if (forecast.value?.hourlyTemperature != null && forecast.value?.hourlyWeatherCode != null) {
                     LazyColumn {
-                        items(remainingHours.size) { index ->
-                            val hourIndex = remainingHours[index]
-                            HourRow(
-                                hour = hourIndex,
-                                weatherCode = forecast.value?.hourlyWeatherCode?.get(hourIndex)!!,
-                                precipitationProbability = forecast.value?.hourlyPrecipitationProbability?.get(
-                                    hourIndex
-                                )!!,
-                                temperature = forecast.value?.hourlyTemperature?.get(hourIndex)!!,
-                                windSpeed = forecast.value?.hourlyWindSpeed?.get(hourIndex)!!,
-                                windDirection = forecast.value?.hourlyWindDirection?.get(hourIndex)!!,
-                                isDay = hourIsDay(
-                                    hour = hourIndex,
-                                    sunrise = dailyWeather.value?.sunrise!!,
-                                    sunset = dailyWeather.value?.sunset!!
+                        items(forecast.value?.hourlyTemperature?.size!!) {
+                            if (it % 24 == 0) {
+                                val dayOfWeek = forecast.value?.hour?.get(it)?.dayOfWeek.toString()
+                                    .capitalizeWord()
+                                val month =
+                                    forecast.value?.hour?.get(it)?.month.toString().capitalizeWord()
+                                val day = forecast.value?.hour?.get(it)?.dayOfMonth.toString()
+                                    .capitalizeWord()
+                                Text(
+                                    text = "$dayOfWeek, $month $day",
+                                    fontSize = 20.sp,
+                                    modifier = Modifier.padding(horizontal = 20.dp)
                                 )
-                            )
+                            }
+                            if (it > currentHour) {
+                                HourRow(
+                                    hour = forecast.value?.hour?.get(it)?.hour!!,
+                                    weatherCode = forecast.value?.hourlyWeatherCode?.get(it)!!,
+                                    precipitationProbability = forecast.value?.hourlyPrecipitationProbability?.get(
+                                        it
+                                    )!!,
+                                    temperature = forecast.value?.hourlyTemperature?.get(it)!!,
+                                    windSpeed = forecast.value?.hourlyWindSpeed?.get(it)!!,
+                                    windDirection = forecast.value?.hourlyWindDirection?.get(it)!!,
+                                    isDay = true
+                                )
+                            }
                         }
                     }
                 }

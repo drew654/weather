@@ -118,7 +118,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&timezone=auto&forecast_days=1"
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&timezone=auto&forecast_days=16"
                 val request = Request.Builder()
                     .url(url)
                     .build()
@@ -132,6 +132,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val responseBody = response.body?.string() ?: ""
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val hourly = jsonObject["hourly"]?.jsonObject
+                        val hours = hourly?.get("time")?.jsonArray
                         val temperatures = hourly?.get("temperature_2m")?.jsonArray
                         val weatherCodes = hourly?.get("weather_code")?.jsonArray
                         val precipitationProbabilities =
@@ -139,6 +140,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val windSpeeds = hourly?.get("wind_speed_10m")?.jsonArray
                         val windDirections = hourly?.get("wind_direction_10m")?.jsonArray
 
+                        val hour = hours?.mapIndexed { index, element ->
+                            hours[index].jsonPrimitive.content
+                        }?.map {
+                            LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME)
+                        }
                         val hourlyTemperature = temperatures?.mapIndexed { index, element ->
                             temperatures[index].jsonPrimitive.double
                         }
@@ -157,6 +163,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         }
 
                         _forecast.value = Forecast(
+                            hour = hour ?: emptyList(),
                             hourlyTemperature = hourlyTemperature ?: emptyList(),
                             hourlyWeatherCode = hourlyWeatherCode ?: emptyList(),
                             hourlyPrecipitationProbability = hourlyPrecipitationProbabilities

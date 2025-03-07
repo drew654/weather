@@ -156,7 +156,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&timezone=auto&forecast_days=16"
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=fahrenheit&timezone=auto&forecast_days=15"
                 val request = Request.Builder()
                     .url(url)
                     .build()
@@ -178,33 +178,29 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val windSpeeds = hourly?.get("wind_speed_10m")?.jsonArray
                         val windDirections = hourly?.get("wind_direction_10m")?.jsonArray
 
-                        val arraySize =
-                            temperatures?.count { it.jsonPrimitive.content == "null" } ?: 0
-
-                        val hour = hours?.take(arraySize)?.mapIndexed { index, element ->
+                        val hour = hours?.mapIndexed { index, element ->
                             hours[index].jsonPrimitive.content
                         }?.map {
                             LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME)
                         }
                         val hourlyTemperature =
-                            temperatures?.take(arraySize)?.mapIndexed { index, element ->
+                            temperatures?.mapIndexed { index, element ->
                                 temperatures[index].jsonPrimitive.double
                             }
                         val hourlyWeatherCode =
-                            weatherCodes?.take(arraySize)?.mapIndexed { index, element ->
+                            weatherCodes?.mapIndexed { index, element ->
                                 weatherCodes[index].jsonPrimitive.int
                             }
                         val hourlyPrecipitationProbabilities =
-                            precipitationProbabilities?.take(arraySize)
-                                ?.mapIndexed { index, element ->
-                                    precipitationProbabilities[index].jsonPrimitive.int
-                                }
+                            precipitationProbabilities?.mapIndexed { index, element ->
+                                precipitationProbabilities[index].jsonPrimitive.int
+                            }
                         val hourlyWindSpeed =
-                            windSpeeds?.take(arraySize)?.mapIndexed { index, element ->
+                            windSpeeds?.mapIndexed { index, element ->
                                 windSpeeds[index].jsonPrimitive.double
                             }
                         val hourlyWindDirection =
-                            windDirections?.take(arraySize)?.mapIndexed { index, element ->
+                            windDirections?.mapIndexed { index, element ->
                                 windDirections[index].jsonPrimitive.int
                             }
 

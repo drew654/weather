@@ -29,7 +29,7 @@ fun HourlyScreen(
         if (forecast.value?.hourlyTemperature != null && forecast.value?.hourlyWeatherCode != null) {
             LazyColumn {
                 items(forecast.value?.hourlyTemperature?.size!!) {
-                    if (it % 24 == 0) {
+                    if (it % 24 == 0 && it != 0) {
                         val dayOfWeek = forecast.value?.hour?.get(it)?.dayOfWeek.toString()
                             .capitalizeWord()
                         val month =

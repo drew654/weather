@@ -33,6 +33,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _places = MutableStateFlow<List<Place>>(emptyList())
     val places: StateFlow<List<Place>> = _places.asStateFlow()
 
+    private val _selectedPlace = MutableStateFlow<Place?>(null)
+    val selectedPlace: StateFlow<Place?> = _selectedPlace.asStateFlow()
+
     private val _nominatimResponse = MutableStateFlow<List<Place>>(emptyList())
     val nominatimResponse: StateFlow<List<Place>> = _nominatimResponse.asStateFlow()
 
@@ -49,6 +52,22 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             dataStore.data.collect { savedPlaces ->
                 _places.update { savedPlaces }
+                if (_places.value.isEmpty()) {
+                    _places.update {
+                        listOf(
+                            Place(
+                                name = "Reveille Memorial",
+                                latitude = 30.6109683,
+                                longitude = -96.3414112
+                            )
+                        )
+                    }
+                    savePlaces()
+                }
+                setSelectedPlace(_places.value[0])
+                fetchCurrentWeather(_places.value[0])
+                fetchForecast(_places.value[0])
+                fetchDailyWeather(_places.value[0])
             }
         }
     }
@@ -71,8 +90,27 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun getPlace(id: String): Place? {
-        return _places.value.find { it.id == id }
+    fun setSelectedPlace(place: Place) {
+        _selectedPlace.value = place
+    }
+
+    fun movePlaceToFront(place: Place) {
+        _places.update { places ->
+            places.filter { it != place } + place
+        }
+        savePlaces()
+    }
+
+    fun fetchWeather() {
+        if (_selectedPlace.value != null) {
+            fetchCurrentWeather(_selectedPlace.value!!)
+            fetchForecast(_selectedPlace.value!!)
+            fetchDailyWeather(_selectedPlace.value!!)
+        }
+    }
+
+    fun getSelectedPlace(): Place? {
+        return _selectedPlace.value
     }
 
     fun searchNominatim(name: String) {
@@ -210,7 +248,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val snowfall = current?.get("snowfall")?.jsonPrimitive?.double
                         val weatherCode = current?.get("weather_code")?.jsonPrimitive?.int
                         val windSpeed = current?.get("wind_speed_10m")?.jsonPrimitive?.double
-                        val windDirection = current?.get("wind_direction_10m")?.jsonPrimitive?.int
+                        val windDirection =
+                            current?.get("wind_direction_10m")?.jsonPrimitive?.int
                         val windGusts = current?.get("wind_gusts_10m")?.jsonPrimitive?.double
 
                         _currentWeather.value = CurrentWeather(
@@ -256,14 +295,24 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val daily = jsonObject["daily"]?.jsonObject
                         val maxTemperature = daily?.get("temperature_2m_max")?.jsonArray
                         val minTemperature = daily?.get("temperature_2m_min")?.jsonArray
-                        val sunrise = daily?.get("sunrise")?.jsonArray?.get(0)?.jsonPrimitive?.content
-                        val sunset = daily?.get("sunset")?.jsonArray?.get(0)?.jsonPrimitive?.content
+                        val sunrise =
+                            daily?.get("sunrise")?.jsonArray?.get(0)?.jsonPrimitive?.content
+                        val sunset =
+                            daily?.get("sunset")?.jsonArray?.get(0)?.jsonPrimitive?.content
 
                         _dailyWeather.value = DailyWeather(
-                            maxTemperature = maxTemperature?.get(0)?.jsonPrimitive?.double ?: 0.0,
-                            minTemperature = minTemperature?.get(0)?.jsonPrimitive?.double ?: 0.0,
-                            sunrise = LocalDateTime.parse(sunrise, DateTimeFormatter.ISO_DATE_TIME),
-                            sunset = LocalDateTime.parse(sunset, DateTimeFormatter.ISO_DATE_TIME)
+                            maxTemperature = maxTemperature?.get(0)?.jsonPrimitive?.double
+                                ?: 0.0,
+                            minTemperature = minTemperature?.get(0)?.jsonPrimitive?.double
+                                ?: 0.0,
+                            sunrise = LocalDateTime.parse(
+                                sunrise,
+                                DateTimeFormatter.ISO_DATE_TIME
+                            ),
+                            sunset = LocalDateTime.parse(
+                                sunset,
+                                DateTimeFormatter.ISO_DATE_TIME
+                            )
                         )
                     }
                 } catch (e: Exception) {

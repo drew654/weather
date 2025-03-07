@@ -5,21 +5,27 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.ui.screens.NewPlaceScreen
-import com.drew654.weather.ui.screens.PlaceListScreen
-import com.drew654.weather.ui.screens.place.PlaceScreen
 import com.drew654.weather.ui.screens.SettingsScreen
+import com.drew654.weather.ui.screens.WeatherScreen
 import com.drew654.weather.ui.theme.WeatherTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,30 +35,51 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val navController = rememberNavController()
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = navBackStackEntry?.destination?.route
             WeatherTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val navController = rememberNavController()
+                Scaffold(
+                    topBar = {
+                        if (currentRoute == Screen.Weather.route) {
+                            Row(
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .statusBarsPadding()
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(Screen.NewPlace.route)
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_add_24),
+                                        contentDescription = "Add Place"
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(Screen.Settings.route)
+                                    }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_settings_24),
+                                        contentDescription = "Settings"
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.PlaceList.route,
+                        startDestination = Screen.Weather.route,
                         modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable(Screen.PlaceList.route) {
-                            PlaceListScreen(
-                                navController = navController,
-                                weatherViewModel = weatherViewModel
-                            )
-                        }
-                        composable(
-                            route = "${Screen.Place.route}/{id}",
-                            arguments = listOf(
-                                navArgument(name = "id") {
-                                    type = NavType.StringType
-                                }
-                            )
-                        ) {
-                            PlaceScreen(
-                                id = it.arguments?.getString("id")!!,
+                        composable(Screen.Weather.route) {
+                            WeatherScreen(
                                 weatherViewModel = weatherViewModel
                             )
                         }

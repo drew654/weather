@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -21,9 +20,6 @@ fun SettingsScreen(
     weatherViewModel: WeatherViewModel
 ) {
     val places = weatherViewModel.places.collectAsState()
-    val name = remember { mutableStateOf("") }
-    val latitude = remember { mutableStateOf("") }
-    val longitude = remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -42,7 +38,14 @@ fun SettingsScreen(
             Text(text = "Places")
             LazyColumn {
                 items(places.value) { place ->
-                    Text(text = place.name + ": " + place.latitude + ", " + place.longitude)
+                    Text(
+                        text = place.name + ": " + place.latitude + ", " + place.longitude,
+                        modifier = Modifier.clickable {
+                            weatherViewModel.setSelectedPlace(place)
+                            weatherViewModel.movePlaceToFront(place)
+                            weatherViewModel.fetchWeather()
+                        }
+                    )
                 }
             }
         }

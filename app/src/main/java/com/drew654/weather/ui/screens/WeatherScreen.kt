@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.drew654.weather.R
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
+import com.drew654.weather.ui.screens.hourly.HourlyScreen
 import com.drew654.weather.ui.screens.place.PlaceScreen
 
 @Composable

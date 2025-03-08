@@ -44,7 +44,10 @@ fun SearchOption(
                 .padding(horizontal = 16.dp)
                 .weight(1f)
         )
-        if (!places.value.any { it.latitude == place.latitude && it.longitude == place.longitude }) {
+        if (
+            !places.value.any { it.latitude == place.latitude && it.longitude == place.longitude }
+            && place.name != "Current Location"
+        ) {
             Text(
                 text = "Save",
                 modifier = Modifier

@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.drew654.weather.R
+import com.drew654.weather.models.Place
 import com.drew654.weather.models.WeatherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,6 +39,7 @@ fun SearchPlaceScreen(
     val placeSearchName = weatherViewModel.searchPlaceName.collectAsState()
     val isSearching = weatherViewModel.isSearching.collectAsState()
     val fetchedPlaces = weatherViewModel.fetchedPlaces.collectAsState()
+    val currentLocation = weatherViewModel.currentLocation.collectAsState()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -87,6 +89,19 @@ fun SearchPlaceScreen(
             modifier = Modifier.focusRequester(focusRequester)
         ) {
             LazyColumn {
+                if (currentLocation.value != null && fetchedPlaces.value.isEmpty()) {
+                    items(1) {
+                        SearchOption(
+                            weatherViewModel = weatherViewModel,
+                            navController = navController,
+                            place = Place(
+                                name = "Current Location",
+                                latitude = currentLocation.value?.latitude!!,
+                                longitude = currentLocation.value?.longitude!!
+                            )
+                        )
+                    }
+                }
                 if (fetchedPlaces.value.isEmpty()) {
                     items(places.value.size) {
                         SearchOption(

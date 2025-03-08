@@ -64,6 +64,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _dailyWeather = MutableStateFlow<DailyWeather?>(null)
     val dailyWeather: StateFlow<DailyWeather?> = _dailyWeather.asStateFlow()
 
+    private val _currentLocation = MutableStateFlow<Location?>(null)
+    val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
+
     init {
         viewModelScope.launch {
             dataStore.data.collect { savedPlaces ->
@@ -71,6 +74,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                 if (_places.value.isEmpty()) {
                     val location = getCurrentLocation()
                     if (location != null) {
+                        _currentLocation.value = location
                         val place = Place(
                             name = "Current Location",
                             latitude = location.latitude,
@@ -82,6 +86,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         fetchDailyWeather(place)
                     }
                 } else {
+                    val location = getCurrentLocation()
+                    if (location != null) {
+                        _currentLocation.value = location
+                    }
                     setSelectedPlace(_places.value[0])
                     fetchCurrentWeather(_places.value[0])
                     fetchForecast(_places.value[0])

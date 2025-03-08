@@ -1,17 +1,25 @@
 package com.drew654.weather.models
 
 import android.app.Application
+import android.content.pm.PackageManager
+import android.location.Location
+import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.double
@@ -25,6 +33,8 @@ import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.collections.plus
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 
 class WeatherViewModel(application: Application) : AndroidViewModel(application) {
@@ -59,23 +69,63 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             dataStore.data.collect { savedPlaces ->
                 _places.update { savedPlaces }
                 if (_places.value.isEmpty()) {
-                    _places.update {
-                        listOf(
-                            Place(
-                                name = "Reveille Memorial",
-                                latitude = 30.6109683,
-                                longitude = -96.3414112
-                            )
+                    val location = getCurrentLocation()
+                    if (location != null) {
+                        val place = Place(
+                            name = "Current Location",
+                            latitude = location.latitude,
+                            longitude = location.longitude
                         )
+                        setSelectedPlace(place)
+                        fetchCurrentWeather(place)
+                        fetchForecast(place)
+                        fetchDailyWeather(place)
                     }
-                    savePlaces()
+                } else {
+                    setSelectedPlace(_places.value[0])
+                    fetchCurrentWeather(_places.value[0])
+                    fetchForecast(_places.value[0])
+                    fetchDailyWeather(_places.value[0])
                 }
-                setSelectedPlace(_places.value[0])
-                fetchCurrentWeather(_places.value[0])
-                fetchForecast(_places.value[0])
-                fetchDailyWeather(_places.value[0])
             }
         }
+    }
+
+    private var fusedLocationClient: FusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(application)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun getLastKnownLocation(): Location? =
+        suspendCancellableCoroutine { continuation ->
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    continuation.resume(location)
+                }
+                .addOnFailureListener { e: Exception ->
+                    continuation.resumeWithException(e)
+                }
+                .addOnCanceledListener {
+                    continuation.cancel()
+                }
+        }
+
+    private suspend fun getCurrentLocation(): Location? {
+        val context = getApplication<Application>().applicationContext
+        val fineLocationPermission = ContextCompat.checkSelfPermission(
+            context, android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationPermission = ContextCompat.checkSelfPermission(
+            context, android.Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineLocationPermission || coarseLocationPermission) {
+            try {
+                return getLastKnownLocation()
+            } catch (e: Exception) {
+                Log.e("Location", "Error getting location", e)
+            }
+        }
+        return null
     }
 
     fun addPlace(place: Place) {

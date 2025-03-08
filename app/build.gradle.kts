@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore)
     implementation(libs.coil.compose)
+    implementation("com.google.android.gms:play-services-location:21.1.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

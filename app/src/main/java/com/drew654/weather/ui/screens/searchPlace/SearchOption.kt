@@ -32,6 +32,7 @@ fun SearchOption(
                 weatherViewModel.fetchWeather()
                 weatherViewModel.setSearchPlaceName("")
                 weatherViewModel.setIsSearching(false)
+                weatherViewModel.clearFetchedPlaces()
                 navController.popBackStack()
             }
             .padding(vertical = 16.dp)

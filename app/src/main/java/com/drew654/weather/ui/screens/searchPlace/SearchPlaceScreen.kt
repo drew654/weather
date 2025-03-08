@@ -1,10 +1,9 @@
-package com.drew654.weather.ui.screens
+package com.drew654.weather.ui.screens.searchPlace
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -32,10 +32,12 @@ fun SearchPlaceScreen(
     weatherViewModel: WeatherViewModel,
     navController: NavHostController
 ) {
+    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val places = weatherViewModel.places.collectAsState()
     val placeSearchName = weatherViewModel.searchPlaceName.collectAsState()
     val isSearching = weatherViewModel.isSearching.collectAsState()
+    val fetchedPlaces = weatherViewModel.fetchedPlaces.collectAsState()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -48,12 +50,12 @@ fun SearchPlaceScreen(
     ) {
         SearchBar(
             query = placeSearchName.value,
-            onQueryChange = { weatherViewModel.setSearchPlaceName(it) },
+            onQueryChange = {
+                weatherViewModel.setSearchPlaceName(it)
+                weatherViewModel.fetchPlaces(it)
+            },
             onSearch = {
-                weatherViewModel.searchPlaceAndAdd(it)
-                weatherViewModel.setSearchPlaceName("")
-                weatherViewModel.setIsSearching(false)
-                navController.popBackStack()
+                focusManager.clearFocus()
             },
             active = isSearching.value,
             onActiveChange = {
@@ -62,7 +64,7 @@ fun SearchPlaceScreen(
                     navController.popBackStack()
                 }
             },
-            windowInsets = androidx.compose.foundation.layout.WindowInsets(0.dp),
+            windowInsets = WindowInsets(0.dp),
             placeholder = {
                 Text(text = "Search for a location")
             },
@@ -70,6 +72,8 @@ fun SearchPlaceScreen(
                 IconButton(
                     onClick = {
                         weatherViewModel.setIsSearching(false)
+                        weatherViewModel.setSearchPlaceName("")
+                        weatherViewModel.clearFetchedPlaces()
                         navController.popBackStack()
                     },
                     modifier = Modifier.padding(8.dp)
@@ -83,22 +87,22 @@ fun SearchPlaceScreen(
             modifier = Modifier.focusRequester(focusRequester)
         ) {
             LazyColumn {
-                items(places.value.size) {
-                    Text(
-                        text = places.value[it].name,
-                        modifier = Modifier
-                            .clickable {
-                                weatherViewModel.setSelectedPlace(places.value[it])
-                                weatherViewModel.clearWeather()
-                                weatherViewModel.fetchWeather()
-                                weatherViewModel.setSearchPlaceName("")
-                                weatherViewModel.setIsSearching(false)
-                                weatherViewModel.movePlaceToFront(places.value[it])
-                                navController.popBackStack()
-                            }
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    )
+                if (fetchedPlaces.value.isEmpty()) {
+                    items(places.value.size) {
+                        SearchOption(
+                            weatherViewModel = weatherViewModel,
+                            navController = navController,
+                            place = places.value[it]
+                        )
+                    }
+                } else {
+                    items(fetchedPlaces.value.size) {
+                        SearchOption(
+                            weatherViewModel = weatherViewModel,
+                            navController = navController,
+                            place = fetchedPlaces.value[it]
+                        )
+                    }
                 }
             }
         }

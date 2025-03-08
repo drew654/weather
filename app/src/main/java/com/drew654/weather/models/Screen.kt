@@ -8,4 +8,6 @@ sealed class Screen(val route: String) {
     data object Hourly : Screen(route = "weather/hourly")
 
     data object SearchPlace : Screen(route = "weather/search-place")
+
+    data object Settings : Screen(route = "settings")
 }

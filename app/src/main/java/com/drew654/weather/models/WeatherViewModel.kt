@@ -42,6 +42,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _isSearching = MutableStateFlow(false)
     val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
+    private val _fetchedPlaces = MutableStateFlow<List<Place>>(emptyList())
+    val fetchedPlaces: StateFlow<List<Place>> = _fetchedPlaces.asStateFlow()
+
     private val _forecast = MutableStateFlow<Forecast?>(null)
     val forecast: StateFlow<Forecast?> = _forecast.asStateFlow()
 
@@ -126,11 +129,15 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         _dailyWeather.value = null
     }
 
+    fun clearFetchedPlaces() {
+        _fetchedPlaces.value = emptyList()
+    }
+
     fun getSelectedPlace(): Place? {
         return _selectedPlace.value
     }
 
-    fun searchPlaceAndAdd(name: String) {
+    fun fetchPlaces(name: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
@@ -154,8 +161,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                 val name = it.jsonObject["display_name"]?.jsonPrimitive?.content
                                 Place(name ?: "", latitude ?: 0.0, longitude ?: 0.0)
                             }
-                            addPlace(places[0])
-                            _selectedPlace.value = places[0]
+                            _fetchedPlaces.value = places
                         }
                     }
                 } catch (e: Exception) {

@@ -25,8 +25,10 @@ fun HourlyScreen(
     ) {
         if (forecast.value != null) {
             LazyColumn {
-                items(1) {
-                    DateHeading(hour = currentHour, forecast = forecast.value!!)
+                if (currentHour != 23) {
+                    items(1) {
+                        DateHeading(hour = currentHour, forecast = forecast.value!!)
+                    }
                 }
                 items(forecast.value?.hourlyTemperature?.size!!) {
                     if (it % 24 == 0 && it != 0) {

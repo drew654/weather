@@ -36,8 +36,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _selectedPlace = MutableStateFlow<Place?>(null)
     val selectedPlace: StateFlow<Place?> = _selectedPlace.asStateFlow()
 
-    private val _nominatimResponse = MutableStateFlow<List<Place>>(emptyList())
-    val nominatimResponse: StateFlow<List<Place>> = _nominatimResponse.asStateFlow()
+    private val _searchPlaceName = MutableStateFlow("")
+    val searchPlaceName: StateFlow<String> = _searchPlaceName.asStateFlow()
+
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
     private val _forecast = MutableStateFlow<Forecast?>(null)
     val forecast: StateFlow<Forecast?> = _forecast.asStateFlow()
@@ -82,6 +85,14 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         savePlaces()
     }
 
+    fun setSearchPlaceName(name: String) {
+        _searchPlaceName.value = name
+    }
+
+    fun setIsSearching(isSearching: Boolean) {
+        _isSearching.value = isSearching
+    }
+
     private fun savePlaces() {
         viewModelScope.launch {
             dataStore.updateData {
@@ -109,11 +120,17 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun clearWeather() {
+        _forecast.value = null
+        _currentWeather.value = null
+        _dailyWeather.value = null
+    }
+
     fun getSelectedPlace(): Place? {
         return _selectedPlace.value
     }
 
-    fun searchNominatim(name: String) {
+    fun searchPlaceAndAdd(name: String) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
@@ -137,7 +154,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                 val name = it.jsonObject["display_name"]?.jsonPrimitive?.content
                                 Place(name ?: "", latitude ?: 0.0, longitude ?: 0.0)
                             }
-                            _nominatimResponse.value = places
+                            addPlace(places[0])
+                            _selectedPlace.value = places[0]
                         }
                     }
                 } catch (e: Exception) {
@@ -145,10 +163,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                 }
             }
         }
-    }
-
-    fun clearNominatimResponse() {
-        _nominatimResponse.value = emptyList()
     }
 
     fun fetchForecast(place: Place) {

@@ -304,7 +304,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&forecast_days=1"
+                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch"
                 val request = Request.Builder()
                     .url(url)
                     .build()
@@ -321,6 +321,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val temperature = current?.get("temperature_2m")?.jsonPrimitive?.double
                         val relativeHumidity =
                             current?.get("relative_humidity_2m")?.jsonPrimitive?.double
+                        val dewPoint = current?.get("dew_point_2m")?.jsonPrimitive?.double
                         val apparentTemperature =
                             current?.get("apparent_temperature")?.jsonPrimitive?.double
                         val isDay = current?.get("is_day")?.jsonPrimitive?.int == 1
@@ -337,6 +338,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         _currentWeather.value = CurrentWeather(
                             temperature = temperature ?: 0.0,
                             relativeHumidity = relativeHumidity ?: 0.0,
+                            dewPoint = dewPoint ?: 0.0,
                             apparentTemperature = apparentTemperature ?: 0.0,
                             isDay = isDay == true,
                             precipitation = precipitation ?: 0.0,

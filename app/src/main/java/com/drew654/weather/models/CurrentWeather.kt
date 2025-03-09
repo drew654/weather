@@ -3,6 +3,7 @@ package com.drew654.weather.models
 class CurrentWeather(
     val temperature: Double,
     val relativeHumidity: Double,
+    val dewPoint: Double,
     val apparentTemperature: Double,
     val isDay: Boolean,
     val precipitation: Double,

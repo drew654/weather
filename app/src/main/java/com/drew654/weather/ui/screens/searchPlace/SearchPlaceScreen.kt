@@ -89,7 +89,7 @@ fun SearchPlaceScreen(
             modifier = Modifier.focusRequester(focusRequester)
         ) {
             LazyColumn {
-                if (currentLocation.value != null && fetchedPlaces.value.isEmpty()) {
+                if (currentLocation.value != null && placeSearchName.value.isEmpty()) {
                     items(1) {
                         SearchOption(
                             weatherViewModel = weatherViewModel,
@@ -102,7 +102,7 @@ fun SearchPlaceScreen(
                         )
                     }
                 }
-                if (fetchedPlaces.value.isEmpty()) {
+                if (placeSearchName.value.isEmpty()) {
                     items(places.value.size) {
                         SearchOption(
                             weatherViewModel = weatherViewModel,

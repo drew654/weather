@@ -14,6 +14,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -98,6 +100,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
+    private var searchJob: Job? = null
 
     private var fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(application)
@@ -196,7 +200,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun fetchPlaces(name: String) {
-        viewModelScope.launch {
+        searchJob?.cancel()
+
+        searchJob = viewModelScope.launch {
+            delay(300)
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val url = "https://nominatim.openstreetmap.org/search?q=$name&format=json"

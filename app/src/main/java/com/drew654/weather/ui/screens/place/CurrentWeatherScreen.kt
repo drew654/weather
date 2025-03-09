@@ -76,6 +76,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                         Text(text = "Feels like ${currentWeather.value?.apparentTemperature}°")
                     }
                 }
+                Text(text = "High: ${dailyWeather.value?.maxTemperature}° • Low: ${dailyWeather.value?.minTemperature}°")
                 Spacer(modifier = Modifier.weight(1f))
                 Row(
                     modifier = Modifier.fillMaxWidth()

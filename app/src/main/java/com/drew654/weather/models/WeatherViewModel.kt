@@ -73,29 +73,18 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             dataStore.data.collect { savedPlaces ->
                 _places.update { savedPlaces }
-                if (_places.value.isEmpty()) {
-                    val location = getCurrentLocation()
-                    if (location != null) {
-                        _currentLocation.value = location
-                        val place = Place(
-                            name = "Current Location",
-                            latitude = location.latitude,
-                            longitude = location.longitude
-                        )
-                        setSelectedPlace(place)
-                        fetchCurrentWeather(place)
-                        fetchForecast(place)
-                        fetchDailyWeather(place)
-                    }
-                } else {
-                    val location = getCurrentLocation()
-                    if (location != null) {
-                        _currentLocation.value = location
-                    }
-                    setSelectedPlace(_places.value[0])
-                    fetchCurrentWeather(_places.value[0])
-                    fetchForecast(_places.value[0])
-                    fetchDailyWeather(_places.value[0])
+                val location = getCurrentLocation()
+                if (location != null) {
+                    _currentLocation.value = location
+                    val place = Place(
+                        name = "Current Location",
+                        latitude = location.latitude,
+                        longitude = location.longitude
+                    )
+                    setSelectedPlace(place)
+                    fetchCurrentWeather(place)
+                    fetchForecast(place)
+                    fetchDailyWeather(place)
                 }
             }
         }

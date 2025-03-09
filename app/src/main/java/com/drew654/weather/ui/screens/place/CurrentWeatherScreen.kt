@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,7 +40,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     ) {
         if (place.value != null && currentWeather.value != null && forecast.value != null && dailyWeather.value != null) {
             Column(
-                modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
                 Text(text = "Now")
                 Row {
@@ -74,7 +75,15 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                         Text(text = "Feels like ${currentWeather.value?.apparentTemperature}°")
                     }
                 }
-                Text(text = "High: ${dailyWeather.value?.maxTemperature}° • Low: ${dailyWeather.value?.minTemperature}°")
+                Spacer(modifier = Modifier.weight(1f))
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    WindTile(
+                        windSpeed = currentWeather.value?.windSpeed!!,
+                        windDirection = currentWeather.value?.windDirection!!,
+                    )
+                }
             }
         }
     }

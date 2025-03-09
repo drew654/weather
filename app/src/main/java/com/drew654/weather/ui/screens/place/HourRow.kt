@@ -97,7 +97,7 @@ fun HourRow(
             Spacer(Modifier.width(screenWidth * 0.6f))
             Icon(
                 painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
-                contentDescription = "Add Place",
+                contentDescription = "Wind direction",
                 modifier = Modifier
                     .rotate(windDirection.toFloat() + 90)
                     .align(Alignment.CenterVertically)

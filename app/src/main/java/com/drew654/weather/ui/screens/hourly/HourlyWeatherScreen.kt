@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 
 
 @Composable
-fun HourlyScreen(
+fun HourlyWeatherScreen(
     weatherViewModel: WeatherViewModel
 ) {
     val forecast = weatherViewModel.forecast.collectAsState()

@@ -25,7 +25,7 @@ import com.drew654.weather.utils.getWeatherIconUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlaceScreen(weatherViewModel: WeatherViewModel) {
+fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val context = LocalContext.current
     val place = weatherViewModel.selectedPlace.collectAsState()
     val currentWeather = weatherViewModel.currentWeather.collectAsState()

@@ -1,4 +1,4 @@
-package com.drew654.weather.ui.screens.searchPlace
+package com.drew654.weather.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

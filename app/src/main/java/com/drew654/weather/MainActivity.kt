@@ -1,5 +1,6 @@
 package com.drew654.weather
 
+import android.Manifest
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -73,6 +75,16 @@ class MainActivity : ComponentActivity() {
                                 weatherViewModel = weatherViewModel
                             )
                         }
+                    }
+                    if (!weatherViewModel.hasLocationPermission()) {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            ),
+                            1
+                        )
                     }
                 }
             }

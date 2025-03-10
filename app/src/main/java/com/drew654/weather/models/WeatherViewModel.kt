@@ -1,5 +1,6 @@
 package com.drew654.weather.models
 
+import android.Manifest
 import android.app.Application
 import android.content.pm.PackageManager
 import android.location.Location
@@ -73,21 +74,39 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             dataStore.data.collect { savedPlaces ->
                 _places.update { savedPlaces }
-                val location = getCurrentLocation()
-                if (location != null) {
-                    _currentLocation.value = location
-                    val place = Place(
-                        name = "Current Location",
-                        latitude = location.latitude,
-                        longitude = location.longitude
-                    )
-                    setSelectedPlace(place)
-                    fetchCurrentWeather(place)
-                    fetchForecast(place)
-                    fetchDailyWeather(place)
-                }
+                getCurrentLocationWeather()
             }
         }
+    }
+
+    suspend fun getCurrentLocationWeather() {
+        if (hasLocationPermission()) {
+            val location = getCurrentLocation()
+            if (location != null) {
+                _currentLocation.value = location
+                val place = Place(
+                    name = "Current Location",
+                    latitude = location.latitude,
+                    longitude = location.longitude
+                )
+                setSelectedPlace(place)
+                fetchCurrentWeather(place)
+                fetchForecast(place)
+                fetchDailyWeather(place)
+            }
+        }
+    }
+
+    fun hasLocationPermission(): Boolean {
+        val context = getApplication<Application>().applicationContext
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private var searchJob: Job? = null
@@ -111,15 +130,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
 
     private suspend fun getCurrentLocation(): Location? {
-        val context = getApplication<Application>().applicationContext
-        val fineLocationPermission = ContextCompat.checkSelfPermission(
-            context, android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        val coarseLocationPermission = ContextCompat.checkSelfPermission(
-            context, android.Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (fineLocationPermission || coarseLocationPermission) {
+        if (hasLocationPermission()) {
             try {
                 return getLastKnownLocation()
             } catch (e: Exception) {

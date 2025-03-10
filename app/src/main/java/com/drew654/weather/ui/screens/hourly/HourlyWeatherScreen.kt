@@ -34,7 +34,7 @@ fun HourlyWeatherScreen(
                         DateHeading(hour = currentHour, forecast = forecast.value!!)
                     }
                 }
-                items(forecast.value?.hourlyTemperature?.size!!) {
+                items(forecast.value?.hourlyTemperature?.size ?: 0) {
                     if (it % 24 == 0 && it != 0) {
                         DateHeading(hour = it, forecast = forecast.value!!)
                     }

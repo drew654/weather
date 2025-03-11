@@ -35,7 +35,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
-            val weatherNavController = rememberNavController()
 
             WeatherTheme {
                 Scaffold(
@@ -66,8 +65,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.Weather.route) {
                             WeatherScreen(
-                                weatherViewModel = weatherViewModel,
-                                weatherNavController = weatherNavController
+                                weatherViewModel = weatherViewModel
                             )
                         }
                         composable(Screen.Settings.route) {

@@ -11,6 +11,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,6 +29,8 @@ fun WeatherScreen(
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
     val coroutineScope = rememberCoroutineScope()
+    val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -71,7 +74,11 @@ fun WeatherScreen(
         },
         contentWindowInsets = WindowInsets(0.dp)
     ) { innerPadding ->
-        HorizontalPager(state = pagerState, modifier = Modifier.padding(innerPadding)) { page ->
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = swipeToChangeTabs.value,
+            modifier = Modifier.padding(innerPadding)
+        ) { page ->
             when (page) {
                 0 -> CurrentWeatherScreen(weatherViewModel = weatherViewModel)
                 1 -> HourlyWeatherScreen(weatherViewModel = weatherViewModel)

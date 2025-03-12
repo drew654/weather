@@ -21,8 +21,8 @@ import androidx.navigation.compose.rememberNavController
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.ui.components.LocationSearchBar
-import com.drew654.weather.ui.screens.SettingsScreen
 import com.drew654.weather.ui.screens.WeatherScreen
+import com.drew654.weather.ui.screens.settings.SettingsScreen
 import com.drew654.weather.ui.theme.WeatherTheme
 
 class MainActivity : ComponentActivity() {

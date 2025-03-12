@@ -8,6 +8,10 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
@@ -17,9 +21,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -69,6 +75,16 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
+
+    private val preferencesDataStore: DataStore<Preferences> = application.preferencesDataStore
+
+    companion object {
+        val swipeToChangeTabs = booleanPreferencesKey("swipe_to_change_tabs")
+    }
+
+    val swipeToChangeTabsFlow: Flow<Boolean> = preferencesDataStore.data.map { preferences ->
+        preferences[swipeToChangeTabs] == true
+    }
 
     init {
         viewModelScope.launch {
@@ -412,9 +428,19 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             }
         }
     }
+
+    suspend fun updateSwipeToChangeTabs(value: Boolean) {
+        preferencesDataStore.edit { preferences ->
+            preferences[swipeToChangeTabs] = value
+        }
+    }
 }
 
 val Application.dataStore by dataStore(
     fileName = "places.json",
     serializer = PlaceListSerializer
+)
+
+val Application.preferencesDataStore by preferencesDataStore(
+    name = "preferences"
 )

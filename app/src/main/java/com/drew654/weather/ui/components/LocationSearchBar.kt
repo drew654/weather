@@ -64,7 +64,8 @@ fun LocationSearchBar(
         },
         placeholder = {
             Text(
-                text = selectedPlace.value?.name ?: "",
+                text = if (isSearching.value) "Search for a location"
+                else selectedPlace.value?.name ?: "",
                 overflow = TextOverflow.Ellipsis
             )
         },
@@ -124,20 +125,24 @@ fun LocationSearchBar(
                 }
             }
             if (searchPlaceName.value.isEmpty()) {
-                items(1) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth().padding(all = 16.dp)
-                    ) {
-                        Text(text = "Saved locations")
-                        Text(
-                            text = if (isManagingLocations.value) "Done" else "Manage",
+                if (places.value.isNotEmpty()) {
+                    items(1) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
-                                .clickable {
-                                    isManagingLocations.value = !isManagingLocations.value
-                                }
-                        )
+                                .fillMaxWidth()
+                                .padding(all = 16.dp)
+                        ) {
+                            Text(text = "Saved locations")
+                            Text(
+                                text = if (isManagingLocations.value) "Done" else "Manage",
+                                modifier = Modifier
+                                    .clickable {
+                                        isManagingLocations.value = !isManagingLocations.value
+                                    }
+                            )
+                        }
                     }
                 }
                 items(places.value.size) {

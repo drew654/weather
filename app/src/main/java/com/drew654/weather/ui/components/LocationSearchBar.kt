@@ -2,7 +2,12 @@ package com.drew654.weather.ui.components
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -12,6 +17,8 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -40,6 +47,7 @@ fun LocationSearchBar(
     val places = weatherViewModel.places.collectAsState()
     val fetchedPlaces = weatherViewModel.fetchedPlaces.collectAsState()
     val currentLocation = weatherViewModel.currentLocation.collectAsState()
+    val isManagingLocations = remember { mutableStateOf(false) }
 
     SearchBar(
         query = searchPlaceName.value,
@@ -116,11 +124,28 @@ fun LocationSearchBar(
                 }
             }
             if (searchPlaceName.value.isEmpty()) {
+                items(1) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(all = 16.dp)
+                    ) {
+                        Text(text = "Saved locations")
+                        Text(
+                            text = if (isManagingLocations.value) "Done" else "Manage",
+                            modifier = Modifier
+                                .clickable {
+                                    isManagingLocations.value = !isManagingLocations.value
+                                }
+                        )
+                    }
+                }
                 items(places.value.size) {
                     SearchOption(
                         weatherViewModel = weatherViewModel,
                         navController = navController,
-                        place = places.value[it]
+                        place = places.value[it],
+                        isManagingLocations = isManagingLocations.value
                     )
                 }
             } else {

@@ -4,14 +4,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.drew654.weather.R
 import com.drew654.weather.models.Place
 import com.drew654.weather.models.WeatherViewModel
 
@@ -19,7 +23,8 @@ import com.drew654.weather.models.WeatherViewModel
 fun SearchOption(
     weatherViewModel: WeatherViewModel,
     navController: NavHostController,
-    place: Place
+    place: Place,
+    isManagingLocations: Boolean = false
 ) {
     val places = weatherViewModel.places.collectAsState()
 
@@ -57,6 +62,18 @@ fun SearchOption(
                     .padding(horizontal = 16.dp)
                     .align(Alignment.CenterVertically)
             )
+        }
+        if (isManagingLocations) {
+            IconButton(
+                onClick = {
+                    weatherViewModel.removePlace(place)
+                }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_remove_circle_outline_24),
+                    contentDescription = "Remove place"
+                )
+            }
         }
     }
 }

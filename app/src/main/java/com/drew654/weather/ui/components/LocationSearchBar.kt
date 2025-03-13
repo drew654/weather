@@ -61,6 +61,9 @@ fun LocationSearchBar(
         active = isSearching.value,
         onActiveChange = {
             weatherViewModel.setIsSearching(it)
+            if (!isSearching.value) {
+                isManagingLocations.value = false
+            }
         },
         placeholder = {
             Text(

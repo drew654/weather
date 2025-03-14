@@ -15,6 +15,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
+import com.drew654.weather.data.jsonToCurrentWeather
+import com.drew654.weather.data.jsonToDailyWeather
+import com.drew654.weather.data.jsonToForecast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
@@ -32,15 +35,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.double
-import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.collections.plus
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -271,49 +271,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val responseBody = response.body?.string() ?: ""
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val hourly = jsonObject["hourly"]?.jsonObject
-                        val hours = hourly?.get("time")?.jsonArray
-                        val temperatures = hourly?.get("temperature_2m")?.jsonArray
-                        val weatherCodes = hourly?.get("weather_code")?.jsonArray
-                        val precipitationProbabilities =
-                            hourly?.get("precipitation_probability")?.jsonArray
-                        val windSpeeds = hourly?.get("wind_speed_10m")?.jsonArray
-                        val windDirections = hourly?.get("wind_direction_10m")?.jsonArray
 
-                        val hour = hours?.mapIndexed { index, element ->
-                            hours[index].jsonPrimitive.content
-                        }?.map {
-                            LocalDateTime.parse(it, DateTimeFormatter.ISO_DATE_TIME)
-                        }
-                        val hourlyTemperature =
-                            temperatures?.mapIndexed { index, element ->
-                                temperatures[index].jsonPrimitive.double
-                            }
-                        val hourlyWeatherCode =
-                            weatherCodes?.mapIndexed { index, element ->
-                                weatherCodes[index].jsonPrimitive.int
-                            }
-                        val hourlyPrecipitationProbabilities =
-                            precipitationProbabilities?.mapIndexed { index, element ->
-                                precipitationProbabilities[index].jsonPrimitive.int
-                            }
-                        val hourlyWindSpeed =
-                            windSpeeds?.mapIndexed { index, element ->
-                                windSpeeds[index].jsonPrimitive.double
-                            }
-                        val hourlyWindDirection =
-                            windDirections?.mapIndexed { index, element ->
-                                windDirections[index].jsonPrimitive.int
-                            }
-
-                        _forecast.value = Forecast(
-                            hour = hour ?: emptyList(),
-                            hourlyTemperature = hourlyTemperature ?: emptyList(),
-                            hourlyWeatherCode = hourlyWeatherCode ?: emptyList(),
-                            hourlyPrecipitationProbability = hourlyPrecipitationProbabilities
-                                ?: emptyList(),
-                            hourlyWindSpeed = hourlyWindSpeed ?: emptyList(),
-                            hourlyWindDirection = hourlyWindDirection ?: emptyList()
-                        )
+                        _forecast.value = jsonToForecast(hourly ?: jsonObject)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -341,38 +300,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val responseBody = response.body?.string() ?: ""
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val current = jsonObject["current"]?.jsonObject
-                        val temperature = current?.get("temperature_2m")?.jsonPrimitive?.double
-                        val relativeHumidity =
-                            current?.get("relative_humidity_2m")?.jsonPrimitive?.double
-                        val dewPoint = current?.get("dew_point_2m")?.jsonPrimitive?.double
-                        val apparentTemperature =
-                            current?.get("apparent_temperature")?.jsonPrimitive?.double
-                        val isDay = current?.get("is_day")?.jsonPrimitive?.int == 1
-                        val precipitation = current?.get("precipitation")?.jsonPrimitive?.double
-                        val rain = current?.get("rain")?.jsonPrimitive?.double
-                        val showers = current?.get("showers")?.jsonPrimitive?.double
-                        val snowfall = current?.get("snowfall")?.jsonPrimitive?.double
-                        val weatherCode = current?.get("weather_code")?.jsonPrimitive?.int
-                        val windSpeed = current?.get("wind_speed_10m")?.jsonPrimitive?.double
-                        val windDirection =
-                            current?.get("wind_direction_10m")?.jsonPrimitive?.int
-                        val windGusts = current?.get("wind_gusts_10m")?.jsonPrimitive?.double
 
-                        _currentWeather.value = CurrentWeather(
-                            temperature = temperature ?: 0.0,
-                            relativeHumidity = relativeHumidity ?: 0.0,
-                            dewPoint = dewPoint ?: 0.0,
-                            apparentTemperature = apparentTemperature ?: 0.0,
-                            isDay = isDay == true,
-                            precipitation = precipitation ?: 0.0,
-                            rain = rain ?: 0.0,
-                            showers = showers ?: 0.0,
-                            snowfall = snowfall ?: 0.0,
-                            weatherCode = weatherCode ?: 0,
-                            windSpeed = windSpeed ?: 0.0,
-                            windDirection = windDirection ?: 0,
-                            windGusts = windGusts ?: 0.0
-                        )
+                        _currentWeather.value = jsonToCurrentWeather(current ?: jsonObject)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -400,27 +329,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val responseBody = response.body?.string() ?: ""
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val daily = jsonObject["daily"]?.jsonObject
-                        val maxTemperature = daily?.get("temperature_2m_max")?.jsonArray
-                        val minTemperature = daily?.get("temperature_2m_min")?.jsonArray
-                        val sunrise =
-                            daily?.get("sunrise")?.jsonArray?.get(0)?.jsonPrimitive?.content
-                        val sunset =
-                            daily?.get("sunset")?.jsonArray?.get(0)?.jsonPrimitive?.content
 
-                        _dailyWeather.value = DailyWeather(
-                            maxTemperature = maxTemperature?.get(0)?.jsonPrimitive?.double
-                                ?: 0.0,
-                            minTemperature = minTemperature?.get(0)?.jsonPrimitive?.double
-                                ?: 0.0,
-                            sunrise = LocalDateTime.parse(
-                                sunrise,
-                                DateTimeFormatter.ISO_DATE_TIME
-                            ),
-                            sunset = LocalDateTime.parse(
-                                sunset,
-                                DateTimeFormatter.ISO_DATE_TIME
-                            )
-                        )
+                        _dailyWeather.value = jsonToDailyWeather(daily ?: jsonObject)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

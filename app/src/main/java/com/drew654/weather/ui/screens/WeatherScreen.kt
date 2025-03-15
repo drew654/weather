@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.drew654.weather.R
 import com.drew654.weather.models.WeatherViewModel
+import com.drew654.weather.ui.screens.dailyForecast.DailyForecastScreen
 import com.drew654.weather.ui.screens.hourly.HourlyWeatherScreen
 import com.drew654.weather.ui.screens.place.CurrentWeatherScreen
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ import kotlinx.coroutines.launch
 fun WeatherScreen(
     weatherViewModel: WeatherViewModel
 ) {
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val pagerState = rememberPagerState(pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
 
@@ -68,6 +69,23 @@ fun WeatherScreen(
                                 contentDescription = "Hourly weather"
                             )
                         }
+                    ),
+                    NavigationBarItem(
+                        label = {
+                            Text(text = "Daily")
+                        },
+                        selected = pagerState.currentPage == 2,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(2)
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_calendar_today_24),
+                                contentDescription = "Daily weather"
+                            )
+                        }
                     )
                 )
             }
@@ -82,6 +100,7 @@ fun WeatherScreen(
             when (page) {
                 0 -> CurrentWeatherScreen(weatherViewModel = weatherViewModel)
                 1 -> HourlyWeatherScreen(weatherViewModel = weatherViewModel)
+                2 -> DailyForecastScreen(weatherViewModel = weatherViewModel)
             }
         }
     }

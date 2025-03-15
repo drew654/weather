@@ -18,6 +18,7 @@ import com.drew654.weather.data.PlaceListSerializer
 import com.drew654.weather.data.jsonToCurrentWeather
 import com.drew654.weather.data.jsonToDailyWeather
 import com.drew654.weather.data.jsonToForecast
+import com.drew654.weather.data.jsonToDailyForecast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +74,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _dailyWeather = MutableStateFlow<DailyWeather?>(null)
     val dailyWeather: StateFlow<DailyWeather?> = _dailyWeather.asStateFlow()
 
+    private val _dailyForecast = MutableStateFlow<DailyForecast?>(null)
+    val dailyForecast: StateFlow<DailyForecast?> = _dailyForecast.asStateFlow()
+
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
@@ -106,9 +110,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                     longitude = location.longitude
                 )
                 setSelectedPlace(place)
-                fetchCurrentWeather(place)
-                fetchForecast(place)
-                fetchDailyWeather(place)
+                fetchWeather()
             }
         }
     }
@@ -198,6 +200,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             fetchCurrentWeather(_selectedPlace.value!!)
             fetchForecast(_selectedPlace.value!!)
             fetchDailyWeather(_selectedPlace.value!!)
+            fetchDailyForecast(_selectedPlace.value!!)
         }
     }
 
@@ -205,6 +208,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         _forecast.value = null
         _currentWeather.value = null
         _dailyWeather.value = null
+        _dailyForecast.value = null
     }
 
     fun clearFetchedPlaces() {
@@ -331,6 +335,34 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val daily = jsonObject["daily"]?.jsonObject
 
                         _dailyWeather.value = jsonToDailyWeather(daily ?: jsonObject)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    fun fetchDailyForecast(place: Place) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val client = OkHttpClient()
+                val url = "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,weather_code,precipitation_probability_max,wind_speed_10m_max&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto&forecast_days=15"
+                val request = Request.Builder()
+                    .url(url)
+                    .build()
+
+                try {
+                    client.newCall(request).execute().use { response ->
+                        if (!response.isSuccessful) {
+                            throw IOException("Unexpected code $response")
+                        }
+
+                        val responseBody = response.body?.string() ?: ""
+                        val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
+                        val dailyForecast = jsonObject["daily"]?.jsonObject
+
+                        _dailyForecast.value = jsonToDailyForecast(dailyForecast ?: jsonObject)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

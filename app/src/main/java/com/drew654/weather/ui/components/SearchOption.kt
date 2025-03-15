@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.drew654.weather.R
 import com.drew654.weather.models.Place
+import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 
 @Composable
@@ -38,7 +39,11 @@ fun SearchOption(
                 weatherViewModel.setSearchPlaceName("")
                 weatherViewModel.setIsSearching(false)
                 weatherViewModel.clearFetchedPlaces()
-                navController.popBackStack()
+                navController.navigate(Screen.Weather.route) {
+                    popUpTo(Screen.Weather.route) {
+                        inclusive = true
+                    }
+                }
             }
             .padding(vertical = 16.dp)
     ) {

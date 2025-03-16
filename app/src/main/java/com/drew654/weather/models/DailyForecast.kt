@@ -12,4 +12,6 @@ class DailyForecast(
     val dailyWeatherCode: List<Int>,
     val dailyPrecipitationProbabilityMax: List<Int>,
     val dailyWindSpeedMax: List<Double>,
+    val dailyWindDirectionDominant: List<Int>,
+    val dailyUvIndexMax: List<Double>
 )

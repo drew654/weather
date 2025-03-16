@@ -19,6 +19,8 @@ fun jsonToDailyForecast(jsonObject: JsonObject): DailyForecast {
     val dailyWeatherCodes = jsonObject["weather_code"]?.jsonArray
     val dailyPrecipitationProbabilityMaxes = jsonObject["precipitation_probability_max"]?.jsonArray
     val dailyWindSpeedMaxes = jsonObject["wind_speed_10m_max"]?.jsonArray
+    val dailyWindDirectionDominants = jsonObject["wind_direction_10m_dominant"]?.jsonArray
+    val dailyUvIndexMaxes = jsonObject["uv_index_max"]?.jsonArray
 
     val day = days?.mapIndexed { index, element ->
         days[index].jsonPrimitive.content
@@ -50,6 +52,12 @@ fun jsonToDailyForecast(jsonObject: JsonObject): DailyForecast {
     val dailyWindSpeedMax = dailyWindSpeedMaxes?.mapIndexed { index, element ->
         dailyWindSpeedMaxes[index].jsonPrimitive.double
     }
+    val dailyWindDirectionDominant = dailyWindDirectionDominants?.mapIndexed { index, element ->
+        dailyWindDirectionDominants[index].jsonPrimitive.int
+    }
+    val dailyUvIndexMax = dailyUvIndexMaxes?.mapIndexed { index, element ->
+        dailyUvIndexMaxes[index].jsonPrimitive.double
+    }
 
     return DailyForecast(
         day = day ?: emptyList(),
@@ -59,6 +67,8 @@ fun jsonToDailyForecast(jsonObject: JsonObject): DailyForecast {
         dailySunset = dailySunset ?: emptyList(),
         dailyWeatherCode = dailyWeatherCode ?: emptyList(),
         dailyPrecipitationProbabilityMax = dailyPrecipitationProbabilityMax ?: emptyList(),
-        dailyWindSpeedMax = dailyWindSpeedMax ?: emptyList()
+        dailyWindSpeedMax = dailyWindSpeedMax ?: emptyList(),
+        dailyWindDirectionDominant = dailyWindDirectionDominant ?: emptyList(),
+        dailyUvIndexMax = dailyUvIndexMax ?: emptyList()
     )
 }

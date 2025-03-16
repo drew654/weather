@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
@@ -52,6 +53,9 @@ fun DailyForecastScreen(
         Column {
             Spacer(modifier = Modifier.height(20.dp))
             LazyRow {
+                items(1) {
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
                 itemsIndexed(dailyForecast.value?.day ?: listOf()) { index, _ ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -114,6 +118,9 @@ fun DailyForecastScreen(
                             )
                         }
                     }
+                }
+                items(1) {
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
             }
             Row(

@@ -11,15 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +33,8 @@ import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
-import kotlinx.coroutines.launch
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun DailyForecastScreen(
@@ -42,8 +42,7 @@ fun DailyForecastScreen(
 ) {
     val context = LocalContext.current
     val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
-    val pagerState = rememberPagerState(pageCount = { dailyForecast.value?.day?.size ?: 0 })
-    val coroutineScope = rememberCoroutineScope()
+    val selectedDay = weatherViewModel.selectedDay.collectAsState()
 
     Box(
         modifier = Modifier
@@ -52,25 +51,25 @@ fun DailyForecastScreen(
     ) {
         Column {
             Spacer(modifier = Modifier.height(20.dp))
-            HorizontalPager(
-                state = pagerState,
-                userScrollEnabled = true
-            ) {
-                dailyForecast.value?.day?.forEachIndexed { index, date ->
+            LazyRow {
+                itemsIndexed(dailyForecast.value?.day ?: listOf()) { index, _ ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
                             .clip(MaterialTheme.shapes.medium)
                             .clickable {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
+                                weatherViewModel.setSelectedDay(index)
                             }
-                            .background(if (pagerState.currentPage == index) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background)
+                            .background(if (selectedDay.value == index) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background)
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "${dailyForecast.value?.day?.get(index)?.dayOfWeek.toString()[0]} ${
+                            text = "${
+                                dailyForecast.value?.day?.get(index)?.dayOfWeek?.getDisplayName(
+                                    TextStyle.SHORT,
+                                    Locale.getDefault()
+                                )
+                            } ${
                                 dailyForecast.value?.day?.get(
                                     index
                                 )?.dayOfMonth.toString()
@@ -109,7 +108,7 @@ fun DailyForecastScreen(
                             Text(
                                 text = "${
                                     dailyForecast.value?.dailyPrecipitationProbabilityMax?.get(
-                                        pagerState.currentPage
+                                        index
                                     )
                                 }%"
                             )
@@ -130,9 +129,9 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${dailyForecast.value?.dailyWindSpeedMax?.get(pagerState.currentPage)} mph ${
+                            text = "${dailyForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)} mph ${
                                 degToHdg(
-                                    dailyForecast.value?.dailyWindDirectionDominant?.get(pagerState.currentPage) ?: 0
+                                    dailyForecast.value?.dailyWindDirectionDominant?.get(selectedDay.value) ?: 0
                                 )
                             }",
                             fontWeight = FontWeight.Bold
@@ -143,7 +142,7 @@ fun DailyForecastScreen(
                             modifier = Modifier
                                 .rotate(
                                     (dailyForecast.value?.dailyWindDirectionDominant
-                                        ?.get(pagerState.currentPage)
+                                        ?.get(selectedDay.value)
                                         ?.toFloat() ?: 0f) + 90f
                                 )
                                 .align(Alignment.CenterVertically)
@@ -163,7 +162,7 @@ fun DailyForecastScreen(
                         Text(
                             text = getWeatherDescription(
                                 context,
-                                dailyForecast.value?.dailyWeatherCode?.get(pagerState.currentPage)
+                                dailyForecast.value?.dailyWeatherCode?.get(selectedDay.value)
                                     ?: 0,
                                 true
                             ),
@@ -186,7 +185,7 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${dailyForecast.value?.dailyUvIndexMax?.get(pagerState.currentPage)}",
+                            text = "${dailyForecast.value?.dailyUvIndexMax?.get(selectedDay.value)}",
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -203,7 +202,7 @@ fun DailyForecastScreen(
                         Text(
                             text = "${
                                 dailyForecast.value?.dailyPrecipitationProbabilityMax?.get(
-                                    pagerState.currentPage
+                                    selectedDay.value
                                 )
                             }%",
                             fontWeight = FontWeight.Bold
@@ -226,8 +225,8 @@ fun DailyForecastScreen(
                     ) {
                         Text(
                             text = "${
-                                dailyForecast.value?.dailySunrise?.get(pagerState.currentPage)?.hour
-                            }:${dailyForecast.value?.dailySunrise?.get(pagerState.currentPage)?.minute}",
+                                dailyForecast.value?.dailySunrise?.get(selectedDay.value)?.hour
+                            }:${dailyForecast.value?.dailySunrise?.get(selectedDay.value)?.minute}",
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -243,8 +242,8 @@ fun DailyForecastScreen(
                     ) {
                         Text(
                             text = "${
-                                dailyForecast.value?.dailySunset?.get(pagerState.currentPage)?.hour
-                            }:${dailyForecast.value?.dailySunset?.get(pagerState.currentPage)?.minute}",
+                                dailyForecast.value?.dailySunset?.get(selectedDay.value)?.hour
+                            }:${dailyForecast.value?.dailySunset?.get(selectedDay.value)?.minute}",
                             fontWeight = FontWeight.Bold
                         )
                     }

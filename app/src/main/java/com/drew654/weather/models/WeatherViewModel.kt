@@ -77,6 +77,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _dailyForecast = MutableStateFlow<DailyForecast?>(null)
     val dailyForecast: StateFlow<DailyForecast?> = _dailyForecast.asStateFlow()
 
+    private val _selectedDay = MutableStateFlow(0)
+    val selectedDay: StateFlow<Int> = _selectedDay.asStateFlow()
+
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
@@ -369,6 +372,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                 }
             }
         }
+    }
+
+    fun setSelectedDay(day: Int) {
+        _selectedDay.value = day
     }
 
     suspend fun updateSwipeToChangeTabs(value: Boolean) {

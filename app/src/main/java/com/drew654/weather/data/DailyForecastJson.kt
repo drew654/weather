@@ -61,8 +61,8 @@ fun jsonToDailyForecast(jsonObject: JsonObject): DailyForecast {
 
     return DailyForecast(
         day = day ?: emptyList(),
-        maxTemperature = maxTemperature ?: emptyList(),
-        minTemperature = minTemperature ?: emptyList(),
+        dailyMaxTemperature = maxTemperature ?: emptyList(),
+        dailyMinTemperature = minTemperature ?: emptyList(),
         dailySunrise = dailySunrise ?: emptyList(),
         dailySunset = dailySunset ?: emptyList(),
         dailyWeatherCode = dailyWeatherCode ?: emptyList(),

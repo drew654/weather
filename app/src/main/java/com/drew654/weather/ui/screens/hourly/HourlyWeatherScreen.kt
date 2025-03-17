@@ -22,7 +22,7 @@ fun HourlyWeatherScreen(
     weatherViewModel: WeatherViewModel
 ) {
     val forecast = weatherViewModel.forecast.collectAsState()
-    val dailyWeather = weatherViewModel.dailyWeather.collectAsState()
+    val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
     val currentHour = LocalDateTime.now().hour
 
     Box(
@@ -56,8 +56,8 @@ fun HourlyWeatherScreen(
                             windDirection = forecast.value?.hourlyWindDirection?.get(it)!!,
                             isDay = hourIsDay(
                                 hour = forecast.value?.hour?.get(it)?.hour!!,
-                                sunrise = dailyWeather.value?.sunrise!!,
-                                sunset = dailyWeather.value?.sunset!!
+                                sunrise = dailyForecast.value?.dailySunrise?.get(0)!!,
+                                sunset = dailyForecast.value?.dailySunset?.get(0)!!
                             )
                         )
                     }

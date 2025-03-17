@@ -5,8 +5,8 @@ import java.time.LocalDateTime
 
 class DailyForecast(
     val day: List<LocalDate>,
-    val maxTemperature: List<Double>,
-    val minTemperature: List<Double>,
+    val dailyMaxTemperature: List<Double>,
+    val dailyMinTemperature: List<Double>,
     val dailySunrise: List<LocalDateTime>,
     val dailySunset: List<LocalDateTime>,
     val dailyWeatherCode: List<Int>,

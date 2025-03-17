@@ -80,10 +80,10 @@ fun DailyForecastScreen(
                             }"
                         )
                         Text(
-                            text = "${dailyForecast.value?.maxTemperature?.get(index)}°",
+                            text = "${dailyForecast.value?.dailyMaxTemperature?.get(index)}°",
                             fontWeight = FontWeight.Bold
                         )
-                        Text(text = "${dailyForecast.value?.minTemperature?.get(index)}°")
+                        Text(text = "${dailyForecast.value?.dailyMinTemperature?.get(index)}°")
                         AsyncImage(
                             model = getWeatherIconUrl(
                                 weatherCode = dailyForecast.value?.dailyWeatherCode?.get(index)

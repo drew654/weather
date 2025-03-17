@@ -32,14 +32,14 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val place = weatherViewModel.selectedPlace.collectAsState()
     val currentWeather = weatherViewModel.currentWeather.collectAsState()
     val forecast = weatherViewModel.forecast.collectAsState()
-    val dailyWeather = weatherViewModel.dailyWeather.collectAsState()
+    val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
 
     Box(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
     ) {
-        if (place.value != null && currentWeather.value != null && forecast.value != null && dailyWeather.value != null) {
+        if (place.value != null && currentWeather.value != null && forecast.value != null && dailyForecast.value != null) {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
@@ -76,7 +76,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                         Text(text = "Feels like ${currentWeather.value?.apparentTemperature}°")
                     }
                 }
-                Text(text = "High: ${dailyWeather.value?.maxTemperature}° • Low: ${dailyWeather.value?.minTemperature}°")
+                Text(text = "High: ${dailyForecast.value?.dailyMaxTemperature?.get(0)}° • Low: ${dailyForecast.value?.dailyMinTemperature?.get(0)}°")
                 Spacer(modifier = Modifier.weight(1f))
                 Row(
                     modifier = Modifier.fillMaxWidth()

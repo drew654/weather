@@ -55,7 +55,11 @@ class MainActivity : ComponentActivity() {
                                 navigationIcon = {
                                     IconButton(
                                         onClick = {
-                                            navController.popBackStack()
+                                            navController.navigate(Screen.Weather.route) {
+                                                popUpTo(Screen.Weather.route) {
+                                                    inclusive = true
+                                                }
+                                            }
                                         },
                                         modifier = Modifier.padding(8.dp)
                                     ) {
@@ -99,7 +103,8 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(Screen.Settings.route) {
                             SettingsScreen(
-                                weatherViewModel = weatherViewModel
+                                weatherViewModel = weatherViewModel,
+                                navController = navController
                             )
                         }
                     }

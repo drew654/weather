@@ -1,5 +1,6 @@
 package com.drew654.weather.ui.screens.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,18 +10,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    weatherViewModel: WeatherViewModel
+    weatherViewModel: WeatherViewModel,
+    navController: NavController
 ) {
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val preferences = listOf(
         "Swipe to Change Tabs" to swipeToChangeTabs.value
     )
+
+    BackHandler {
+        navController.navigate(Screen.Weather.route) {
+            popUpTo(Screen.Weather.route) {
+                inclusive = true
+            }
+        }
+    }
 
     Box(
         modifier = Modifier

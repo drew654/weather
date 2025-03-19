@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -81,7 +82,6 @@ fun LocationSearchBar(
                             weatherViewModel.setIsSearching(false)
                             weatherViewModel.setSearchPlaceName("")
                             weatherViewModel.clearFetchedPlaces()
-                            navController.popBackStack()
                         },
                         modifier = Modifier.padding(8.dp)
                     ) {
@@ -123,6 +123,7 @@ fun LocationSearchBar(
                 isManagingLocations.value = false
             }
         },
+        windowInsets = WindowInsets(0.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = padding.value)

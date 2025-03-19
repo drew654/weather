@@ -1,10 +1,8 @@
 package com.drew654.weather.ui.screens
 
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -15,24 +13,31 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.drew654.weather.R
 import com.drew654.weather.models.WeatherViewModel
+import com.drew654.weather.ui.components.LocationSearchBar
 import com.drew654.weather.ui.screens.dailyForecast.DailyForecastScreen
 import com.drew654.weather.ui.screens.hourly.HourlyWeatherScreen
 import com.drew654.weather.ui.screens.place.CurrentWeatherScreen
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreen(
-    weatherViewModel: WeatherViewModel
+    weatherViewModel: WeatherViewModel,
+    navController: NavHostController
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
 
     Scaffold(
+        topBar = {
+            LocationSearchBar(
+                weatherViewModel = weatherViewModel,
+                navController = navController
+            )
+        },
         bottomBar = {
             NavigationBar {
                 listOf(
@@ -89,8 +94,7 @@ fun WeatherScreen(
                     )
                 )
             }
-        },
-        contentWindowInsets = WindowInsets(0.dp)
+        }
     ) { innerPadding ->
         HorizontalPager(
             state = pagerState,

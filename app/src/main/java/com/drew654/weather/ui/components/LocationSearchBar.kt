@@ -1,6 +1,5 @@
 package com.drew654.weather.ui.components
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,7 +30,7 @@ import com.drew654.weather.models.Place
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationSearchBar(
     weatherViewModel: WeatherViewModel,
@@ -49,64 +49,78 @@ fun LocationSearchBar(
     val currentLocation = weatherViewModel.currentLocation.collectAsState()
     val isManagingLocations = remember { mutableStateOf(false) }
 
+    val inputField = @Composable {
+        SearchBarDefaults.InputField(
+            query = searchPlaceName.value,
+            onQueryChange = {
+                weatherViewModel.setSearchPlaceName(it)
+                weatherViewModel.fetchPlaces(it)
+            },
+            onSearch = {
+                focusManager.clearFocus()
+            },
+            expanded = isSearching.value,
+            onExpandedChange = {
+                weatherViewModel.setIsSearching(it)
+                if (!isSearching.value) {
+                    isManagingLocations.value = false
+                }
+            },
+            placeholder = {
+                Text(
+                    text = if (isSearching.value) "Search for a location"
+                    else selectedPlace.value?.name ?: "",
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+            },
+            leadingIcon = {
+                if (isSearching.value) {
+                    IconButton(
+                        onClick = {
+                            weatherViewModel.setIsSearching(false)
+                            weatherViewModel.setSearchPlaceName("")
+                            weatherViewModel.clearFetchedPlaces()
+                            navController.popBackStack()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_arrow_back_24),
+                            contentDescription = "Back icon"
+                        )
+                    }
+                } else {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_search_24),
+                        contentDescription = "Search icon"
+                    )
+                }
+            },
+            trailingIcon = {
+                if (!isSearching.value) {
+                    IconButton(
+                        onClick = {
+                            navController.navigate(Screen.Settings.route)
+                        }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_settings_24),
+                            contentDescription = "Settings"
+                        )
+                    }
+                }
+            },
+        )
+    }
+
     SearchBar(
-        query = searchPlaceName.value,
-        onQueryChange = {
-            weatherViewModel.setSearchPlaceName(it)
-            weatherViewModel.fetchPlaces(it)
-        },
-        onSearch = {
-            focusManager.clearFocus()
-        },
-        active = isSearching.value,
-        onActiveChange = {
+        inputField = inputField,
+        expanded = isSearching.value,
+        onExpandedChange = {
             weatherViewModel.setIsSearching(it)
             if (!isSearching.value) {
                 isManagingLocations.value = false
-            }
-        },
-        placeholder = {
-            Text(
-                text = if (isSearching.value) "Search for a location"
-                else selectedPlace.value?.name ?: "",
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        leadingIcon = {
-            if (isSearching.value) {
-                IconButton(
-                    onClick = {
-                        weatherViewModel.setIsSearching(false)
-                        weatherViewModel.setSearchPlaceName("")
-                        weatherViewModel.clearFetchedPlaces()
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_arrow_back_24),
-                        contentDescription = "Back icon"
-                    )
-                }
-            } else {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_search_24),
-                    contentDescription = "Search icon"
-                )
-            }
-        },
-        trailingIcon = {
-            if (!isSearching.value) {
-                IconButton(
-                    onClick = {
-                        navController.navigate(Screen.Settings.route)
-                    }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_settings_24),
-                        contentDescription = "Settings"
-                    )
-                }
             }
         },
         modifier = Modifier

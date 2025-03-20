@@ -92,7 +92,7 @@ fun LocationSearchBar(
                     }
                 } else {
                     Icon(
-                        painter = painterResource(id = R.drawable.baseline_search_24),
+                        painter = painterResource(id = R.drawable.baseline_location_pin_24),
                         contentDescription = "Search icon"
                     )
                 }

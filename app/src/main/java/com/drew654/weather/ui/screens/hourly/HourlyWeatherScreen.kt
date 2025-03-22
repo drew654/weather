@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,7 +20,8 @@ import java.time.LocalDateTime
 
 @Composable
 fun HourlyWeatherScreen(
-    weatherViewModel: WeatherViewModel
+    weatherViewModel: WeatherViewModel,
+    hourlyListState: LazyListState,
 ) {
     val forecast = weatherViewModel.forecast.collectAsState()
     val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
@@ -31,7 +33,9 @@ fun HourlyWeatherScreen(
             .fillMaxSize()
     ) {
         if (forecast.value != null) {
-            LazyColumn {
+            LazyColumn(
+                state = hourlyListState
+            ) {
                 items(1) {
                     Spacer(modifier = Modifier.height(12.dp))
                 }

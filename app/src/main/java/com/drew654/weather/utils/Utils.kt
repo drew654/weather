@@ -60,3 +60,14 @@ fun hourIsDay(hour: Int, sunrise: LocalDateTime, sunset: LocalDateTime): Boolean
 fun String.capitalizeWord(): String {
     return this.lowercase().replaceFirstChar { it.uppercase() }
 }
+
+fun calculateStartIndexForDay(targetDay: Int, currentHour: Int): Int {
+    if (targetDay == 0) {
+        return if (currentHour == 23) 0 else 1
+    }
+    return if (currentHour == 23) {
+        targetDay * 24 + 1
+    } else {
+        targetDay * 24 + 2
+    }
+}

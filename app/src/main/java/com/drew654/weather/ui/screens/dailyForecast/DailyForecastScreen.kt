@@ -1,6 +1,7 @@
 package com.drew654.weather.ui.screens.dailyForecast
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,18 +30,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.drew654.weather.R
 import com.drew654.weather.models.WeatherViewModel
+import com.drew654.weather.utils.calculateStartIndexForDay
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
 fun DailyForecastScreen(
-    weatherViewModel: WeatherViewModel
+    weatherViewModel: WeatherViewModel,
+    pagerState: PagerState,
+    hourlyListState: LazyListState,
+    coroutineScope: CoroutineScope
 ) {
     val context = LocalContext.current
     val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
     val selectedDay = weatherViewModel.selectedDay.collectAsState()
+    val currentHour = LocalDateTime.now().hour
 
     Box(
         modifier = Modifier
@@ -214,6 +225,22 @@ fun DailyForecastScreen(
                     }
                 }
             }
+            Text(
+                text = "Hourly Forecast",
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clickable {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(1)
+                            hourlyListState.animateScrollToItem(
+                                index = calculateStartIndexForDay(
+                                    selectedDay.value,
+                                    currentHour
+                                )
+                            )
+                        }
+                    }
+            )
         }
     }
 }

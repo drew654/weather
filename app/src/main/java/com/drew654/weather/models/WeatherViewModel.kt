@@ -5,6 +5,8 @@ import android.app.Application
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore

@@ -1,6 +1,7 @@
 package com.drew654.weather.ui.screens
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
@@ -30,6 +31,7 @@ fun WeatherScreen(
     val pagerState = rememberPagerState(pageCount = { 3 })
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
+    val hourlyListState = rememberLazyListState()
 
     Scaffold(
         topBar = {
@@ -103,8 +105,17 @@ fun WeatherScreen(
         ) { page ->
             when (page) {
                 0 -> CurrentWeatherScreen(weatherViewModel = weatherViewModel)
-                1 -> HourlyWeatherScreen(weatherViewModel = weatherViewModel)
-                2 -> DailyForecastScreen(weatherViewModel = weatherViewModel)
+                1 -> HourlyWeatherScreen(
+                    weatherViewModel = weatherViewModel,
+                    hourlyListState = hourlyListState,
+                )
+
+                2 -> DailyForecastScreen(
+                    weatherViewModel = weatherViewModel,
+                    pagerState = pagerState,
+                    hourlyListState = hourlyListState,
+                    coroutineScope = coroutineScope,
+                )
             }
         }
     }

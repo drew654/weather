@@ -133,7 +133,6 @@ fun LocationSearchBar(
                 items(1) {
                     SearchOption(
                         weatherViewModel = weatherViewModel,
-                        navController = navController,
                         place = Place(
                             name = "Current Location",
                             latitude = currentLocation.value?.latitude!!,
@@ -166,7 +165,6 @@ fun LocationSearchBar(
                 items(places.value.size) {
                     SearchOption(
                         weatherViewModel = weatherViewModel,
-                        navController = navController,
                         place = places.value[it],
                         isManagingLocations = isManagingLocations.value
                     )
@@ -175,7 +173,6 @@ fun LocationSearchBar(
                 items(fetchedPlaces.value.size) {
                     SearchOption(
                         weatherViewModel = weatherViewModel,
-                        navController = navController,
                         place = fetchedPlaces.value[it]
                     )
                 }

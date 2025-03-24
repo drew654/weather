@@ -14,16 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.drew654.weather.R
 import com.drew654.weather.models.Place
-import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 
 @Composable
 fun SearchOption(
     weatherViewModel: WeatherViewModel,
-    navController: NavHostController,
     place: Place,
     isManagingLocations: Boolean = false
 ) {
@@ -39,11 +36,7 @@ fun SearchOption(
                 weatherViewModel.setSearchPlaceName("")
                 weatherViewModel.setIsSearching(false)
                 weatherViewModel.clearFetchedPlaces()
-                navController.navigate(Screen.Weather.route) {
-                    popUpTo(Screen.Weather.route) {
-                        inclusive = true
-                    }
-                }
+                weatherViewModel.setIsSearching(false)
             }
             .padding(vertical = 16.dp)
     ) {

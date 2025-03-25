@@ -5,8 +5,6 @@ import android.app.Application
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
@@ -18,8 +16,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
 import com.drew654.weather.data.jsonToCurrentWeather
-import com.drew654.weather.data.jsonToForecast
 import com.drew654.weather.data.jsonToDailyForecast
+import com.drew654.weather.data.jsonToForecast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers

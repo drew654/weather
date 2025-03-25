@@ -1,10 +1,15 @@
 package com.drew654.weather.ui.screens
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -14,6 +19,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.drew654.weather.R
 import com.drew654.weather.models.WeatherViewModel
@@ -32,6 +38,7 @@ fun WeatherScreen(
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val hourlyListState = rememberLazyListState()
+    val currentWeather = weatherViewModel.currentWeather.collectAsState()
 
     Scaffold(
         topBar = {
@@ -98,24 +105,39 @@ fun WeatherScreen(
             }
         }
     ) { innerPadding ->
-        HorizontalPager(
-            state = pagerState,
-            userScrollEnabled = swipeToChangeTabs.value,
-            modifier = Modifier.padding(innerPadding)
-        ) { page ->
-            when (page) {
-                0 -> CurrentWeatherScreen(weatherViewModel = weatherViewModel)
-                1 -> HourlyWeatherScreen(
-                    weatherViewModel = weatherViewModel,
-                    hourlyListState = hourlyListState,
+        if (currentWeather.value == null) {
+            Box(
+                contentAlignment = androidx.compose.ui.Alignment.Center,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(64.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
+            }
+        } else {
+            HorizontalPager(
+                state = pagerState,
+                userScrollEnabled = swipeToChangeTabs.value,
+                modifier = Modifier.padding(innerPadding)
+            ) { page ->
+                when (page) {
+                    0 -> CurrentWeatherScreen(weatherViewModel = weatherViewModel)
+                    1 -> HourlyWeatherScreen(
+                        weatherViewModel = weatherViewModel,
+                        hourlyListState = hourlyListState,
+                    )
 
-                2 -> DailyForecastScreen(
-                    weatherViewModel = weatherViewModel,
-                    pagerState = pagerState,
-                    hourlyListState = hourlyListState,
-                    coroutineScope = coroutineScope,
-                )
+                    2 -> DailyForecastScreen(
+                        weatherViewModel = weatherViewModel,
+                        pagerState = pagerState,
+                        hourlyListState = hourlyListState,
+                        coroutineScope = coroutineScope,
+                    )
+                }
             }
         }
     }

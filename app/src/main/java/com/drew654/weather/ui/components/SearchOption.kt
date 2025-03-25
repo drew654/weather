@@ -34,7 +34,6 @@ fun SearchOption(
                 weatherViewModel.clearWeather()
                 weatherViewModel.fetchWeather()
                 weatherViewModel.setSearchPlaceName("")
-                weatherViewModel.setIsSearching(false)
                 weatherViewModel.clearFetchedPlaces()
                 weatherViewModel.setIsSearching(false)
             }

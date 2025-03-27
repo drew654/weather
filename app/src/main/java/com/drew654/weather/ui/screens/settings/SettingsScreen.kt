@@ -2,6 +2,7 @@ package com.drew654.weather.ui.screens.settings
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -31,11 +33,13 @@ fun SettingsScreen(
     weatherViewModel: WeatherViewModel,
     navController: NavController
 ) {
+    val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val preferences = listOf(
         "Swipe to Change Tabs" to swipeToChangeTabs.value
     )
+    val temperatureUnit = weatherViewModel.temperatureUnitFlow.collectAsState(initial = "Fahrenheit")
 
     BackHandler {
         navController.navigate(Screen.Weather.route) {
@@ -72,6 +76,12 @@ fun SettingsScreen(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = null
+            ) {
+                focusManager.clearFocus()
+            }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.padding(innerPadding),
@@ -87,6 +97,19 @@ fun SettingsScreen(
                             }
                         }
                     }
+                )
+            }
+            items(1) {
+                SettingsDropdownRow(
+                    label = "Temperature Unit",
+                    value = temperatureUnit.value,
+                    onValueChange = {
+                        coroutineScope.launch {
+                            weatherViewModel.updateTemperatureUnit(it)
+                            weatherViewModel.fetchWeather()
+                        }
+                    },
+                    options = listOf("Fahrenheit", "Celsius")
                 )
             }
         }

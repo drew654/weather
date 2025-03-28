@@ -40,6 +40,7 @@ fun SettingsScreen(
         "Swipe to Change Tabs" to swipeToChangeTabs.value
     )
     val temperatureUnit = weatherViewModel.temperatureUnitFlow.collectAsState(initial = "Fahrenheit")
+    val windSpeedUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
 
     BackHandler {
         navController.navigate(Screen.Weather.route) {
@@ -110,6 +111,17 @@ fun SettingsScreen(
                         }
                     },
                     options = listOf("Fahrenheit", "Celsius")
+                )
+                SettingsDropdownRow(
+                    label = "Wind Speed Unit",
+                    value = windSpeedUnit.value,
+                    onValueChange = {
+                        coroutineScope.launch {
+                            weatherViewModel.updateWindSpeedUnit(it)
+                            weatherViewModel.fetchWeather()
+                        }
+                    },
+                    options = listOf("mph", "km/h", "m/s", "Knots")
                 )
             }
         }

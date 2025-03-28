@@ -16,20 +16,27 @@ fun degToHdg(deg: Int): String {
     return directions[index]
 }
 
-fun getBeaufortDescription(speed: Double): String {
+fun getBeaufortDescription(speed: Double, unit: String): String {
+    val mphSpeed = when (unit) {
+        "mph" -> speed
+        "km/h" -> kphToMph(speed)
+        "m/s" -> msToMph(speed)
+        "Knots" -> ktsToMph(speed)
+        else -> speed
+    }
     return when {
-        speed >= 0.0 && speed < 1.0 -> "Calm"
-        speed >= 1.0 && speed < 4.0 -> "Light air"
-        speed >= 4.0 && speed < 8.0 -> "Light breeze"
-        speed >= 8.0 && speed < 13.0 -> "Gentle breeze"
-        speed >= 13.0 && speed < 19.0 -> "Moderate breeze"
-        speed >= 19.0 && speed < 25.0 -> "Fresh breeze"
-        speed >= 25.0 && speed < 32.0 -> "Strong breeze"
-        speed >= 32.0 && speed < 39.0 -> "Near gale"
-        speed >= 39.0 && speed < 47.0 -> "Gale"
-        speed >= 47.0 && speed < 55.0 -> "Strong gale"
-        speed >= 55.0 && speed < 64.0 -> "Whole gale"
-        speed >= 64.0 && speed < 75.0 -> "Sorm force"
+        mphSpeed >= 0.0 && mphSpeed < 1.0 -> "Calm"
+        mphSpeed >= 1.0 && mphSpeed < 4.0 -> "Light air"
+        mphSpeed >= 4.0 && mphSpeed < 8.0 -> "Light breeze"
+        mphSpeed >= 8.0 && mphSpeed < 13.0 -> "Gentle breeze"
+        mphSpeed >= 13.0 && mphSpeed < 19.0 -> "Moderate breeze"
+        mphSpeed >= 19.0 && mphSpeed < 25.0 -> "Fresh breeze"
+        mphSpeed >= 25.0 && mphSpeed < 32.0 -> "Strong breeze"
+        mphSpeed >= 32.0 && mphSpeed < 39.0 -> "Near gale"
+        mphSpeed >= 39.0 && mphSpeed < 47.0 -> "Gale"
+        mphSpeed >= 47.0 && mphSpeed < 55.0 -> "Strong gale"
+        mphSpeed >= 55.0 && mphSpeed < 64.0 -> "Whole gale"
+        mphSpeed >= 64.0 && mphSpeed < 75.0 -> "Sorm force"
         else -> "Hurricane force"
     }
 }
@@ -70,4 +77,28 @@ fun calculateStartIndexForDay(targetDay: Int, currentHour: Int): Int {
     } else {
         targetDay * 24 + 2
     }
+}
+
+fun mphToKph(mph: Double): Double {
+    return mph * 1.60934
+}
+
+fun kphToMph(kph: Double): Double {
+    return kph / 1.60934
+}
+
+fun mphToMs(mph: Double): Double {
+    return mph / 2.23694
+}
+
+fun msToMph(ms: Double): Double {
+    return ms * 2.23694
+}
+
+fun mphToKts(mph: Double): Double {
+    return mph / 1.15078
+}
+
+fun ktsToMph(kts: Double): Double {
+    return kts * 1.15078
 }

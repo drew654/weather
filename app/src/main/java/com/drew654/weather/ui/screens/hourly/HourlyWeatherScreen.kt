@@ -50,6 +50,7 @@ fun HourlyWeatherScreen(
                     }
                     if (it > currentHour) {
                         HourRow(
+                            weatherViewModel = weatherViewModel,
                             hour = forecast.value?.hour?.get(it)?.hour!!,
                             weatherCode = forecast.value?.hourlyWeatherCode?.get(it)!!,
                             precipitationProbability = forecast.value?.hourlyPrecipitationProbability?.get(

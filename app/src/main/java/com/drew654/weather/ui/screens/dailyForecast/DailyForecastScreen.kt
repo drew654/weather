@@ -50,6 +50,7 @@ fun DailyForecastScreen(
     val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
     val selectedDay = weatherViewModel.selectedDay.collectAsState()
     val currentHour = LocalDateTime.now().hour
+    val windUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
 
     Box(
         modifier = Modifier
@@ -105,7 +106,7 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${dailyForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)} mph ${
+                            text = "${dailyForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)} ${windUnit.value} ${
                                 degToHdg(
                                     dailyForecast.value?.dailyWindDirectionDominant?.get(selectedDay.value) ?: 0
                                 )

@@ -84,6 +84,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                     WindTile(
                         windSpeed = currentWeather.value?.windSpeed!!,
                         windDirection = currentWeather.value?.windDirection!!,
+                        weatherViewModel = weatherViewModel
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     HumidityTile(

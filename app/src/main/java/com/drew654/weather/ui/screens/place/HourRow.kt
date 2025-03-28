@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -19,12 +20,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.drew654.weather.R
+import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
 
 @Composable
 fun HourRow(
+    weatherViewModel: WeatherViewModel,
     hour: Int,
     weatherCode: Int,
     precipitationProbability: Int,
@@ -36,6 +39,7 @@ fun HourRow(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
+    val windUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
 
     Box(
         contentAlignment = Alignment.Center,
@@ -102,7 +106,7 @@ fun HourRow(
                     .rotate(windDirection.toFloat() + 90)
                     .align(Alignment.CenterVertically)
             )
-            Text(text = "$windSpeed mph ${degToHdg(windDirection)}")
+            Text(text = "$windSpeed ${windUnit.value} ${degToHdg(windDirection)}")
         }
     }
 }

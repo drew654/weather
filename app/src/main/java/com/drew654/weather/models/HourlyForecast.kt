@@ -2,7 +2,7 @@ package com.drew654.weather.models
 
 import java.time.LocalDateTime
 
-class Forecast(
+class HourlyForecast(
     val hour: List<LocalDateTime>,
     val hourlyTemperature: List<Double>,
     val hourlyWeatherCode: List<Int>,

@@ -31,7 +31,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val context = LocalContext.current
     val place = weatherViewModel.selectedPlace.collectAsState()
     val currentWeather = weatherViewModel.currentWeather.collectAsState()
-    val forecast = weatherViewModel.forecast.collectAsState()
+    val hourlyForecast = weatherViewModel.hourlyForecast.collectAsState()
     val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
 
     Box(
@@ -39,7 +39,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
     ) {
-        if (place.value != null && currentWeather.value != null && forecast.value != null && dailyForecast.value != null) {
+        if (place.value != null && currentWeather.value != null && hourlyForecast.value != null && dailyForecast.value != null) {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {

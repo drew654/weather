@@ -18,8 +18,7 @@ import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
 import com.drew654.weather.data.jsonToCurrentWeather
 import com.drew654.weather.data.jsonToDailyForecast
-import com.drew654.weather.data.jsonToForecast
-import com.drew654.weather.models.MeasurementUnit.Companion.getDataNameFromDisplayName
+import com.drew654.weather.data.jsonToHourlyForecast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
@@ -67,8 +66,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _fetchedPlaces = MutableStateFlow<List<Place>>(emptyList())
     val fetchedPlaces: StateFlow<List<Place>> = _fetchedPlaces.asStateFlow()
 
-    private val _forecast = MutableStateFlow<Forecast?>(null)
-    val forecast: StateFlow<Forecast?> = _forecast.asStateFlow()
+    private val _hourlyForecast = MutableStateFlow<HourlyForecast?>(null)
+    val hourlyForecast: StateFlow<HourlyForecast?> = _hourlyForecast.asStateFlow()
 
     private val _currentWeather = MutableStateFlow<CurrentWeather?>(null)
     val currentWeather: StateFlow<CurrentWeather?> = _currentWeather.asStateFlow()
@@ -215,13 +214,13 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     fun fetchWeather() {
         if (_selectedPlace.value != null) {
             fetchCurrentWeather(_selectedPlace.value!!)
-            fetchForecast(_selectedPlace.value!!)
+            fetchHourlyForecast(_selectedPlace.value!!)
             fetchDailyForecast(_selectedPlace.value!!)
         }
     }
 
     fun clearWeather() {
-        _forecast.value = null
+        _hourlyForecast.value = null
         _currentWeather.value = null
         _dailyForecast.value = null
     }
@@ -290,7 +289,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         return request
     }
 
-    private fun fetchForecast(place: Place) {
+    private fun fetchHourlyForecast(place: Place) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
@@ -321,7 +320,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
                         val hourly = jsonObject["hourly"]?.jsonObject
 
-                        _forecast.value = jsonToForecast(hourly ?: jsonObject)
+                        _hourlyForecast.value = jsonToHourlyForecast(hourly ?: jsonObject)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()

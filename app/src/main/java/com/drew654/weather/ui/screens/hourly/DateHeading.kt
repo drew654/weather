@@ -6,19 +6,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.drew654.weather.models.Forecast
+import com.drew654.weather.models.HourlyForecast
 import com.drew654.weather.utils.capitalizeWord
 
 @Composable
 fun DateHeading(
     hour: Int,
-    forecast: Forecast
+    hourlyForecast: HourlyForecast
 ) {
-    val dayOfWeek = forecast.hour[hour].dayOfWeek.toString()
+    val dayOfWeek = hourlyForecast.hour[hour].dayOfWeek.toString()
         .capitalizeWord()
     val month =
-        forecast.hour[hour].month.toString().capitalizeWord()
-    val day = forecast.hour[hour].dayOfMonth.toString()
+        hourlyForecast.hour[hour].month.toString().capitalizeWord()
+    val day = hourlyForecast.hour[hour].dayOfMonth.toString()
         .capitalizeWord()
     Text(
         text = "$dayOfWeek, $month $day",

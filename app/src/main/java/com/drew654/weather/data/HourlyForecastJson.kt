@@ -1,6 +1,6 @@
 package com.drew654.weather.data
 
-import com.drew654.weather.models.Forecast
+import com.drew654.weather.models.HourlyForecast
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.int
@@ -9,7 +9,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-fun jsonToForecast(jsonObject: JsonObject): Forecast {
+fun jsonToHourlyForecast(jsonObject: JsonObject): HourlyForecast {
     val hours = jsonObject["time"]?.jsonArray
     val temperatures = jsonObject["temperature_2m"]?.jsonArray
     val weatherCodes = jsonObject["weather_code"]?.jsonArray
@@ -44,7 +44,7 @@ fun jsonToForecast(jsonObject: JsonObject): Forecast {
             windDirections[index].jsonPrimitive.int
         }
 
-    return Forecast(
+    return HourlyForecast(
         hour = hour ?: emptyList(),
         hourlyTemperature = hourlyTemperature ?: emptyList(),
         hourlyWeatherCode = hourlyWeatherCode ?: emptyList(),

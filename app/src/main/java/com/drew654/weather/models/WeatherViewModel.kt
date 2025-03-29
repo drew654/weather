@@ -88,6 +88,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         val swipeToChangeTabs = booleanPreferencesKey("swipe_to_change_tabs")
         val temperatureUnit = stringPreferencesKey("temperature_unit")
         val windSpeedUnit = stringPreferencesKey("wind_speed_unit")
+        val precipitationUnit = stringPreferencesKey("precipitation_unit")
     }
 
     val swipeToChangeTabsFlow: Flow<Boolean> = preferencesDataStore.data.map { preferences ->
@@ -100,6 +101,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     val windSpeedUnitFlow: Flow<String> = preferencesDataStore.data.map { preferences ->
         preferences[windSpeedUnit] ?: MeasurementUnit.Mph.dataName
+    }
+
+    val precipitationUnitFlow: Flow<String> = preferencesDataStore.data.map { preferences ->
+        preferences[precipitationUnit] ?: MeasurementUnit.Inch.dataName
     }
 
     init {
@@ -275,7 +280,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         windSpeedUnit: String? = null,
         precipitationUnit: String? = null
     ): Request {
-        val url = "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&${weatherDataType.value}=${weatherDataFields.joinToString(",")}${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}${if (temperatureUnit != null) "&temperature_unit=$temperatureUnit" else ""}${if (windSpeedUnit != null) "&wind_speed_unit=$windSpeedUnit" else ""}${if (precipitationUnit != null) "&precipitation_unit=$precipitationUnit" else ""}"
+        val url =
+            "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&${weatherDataType.value}=${
+                weatherDataFields.joinToString(",")
+            }${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}${if (temperatureUnit != null) "&temperature_unit=$temperatureUnit" else ""}${if (windSpeedUnit != null) "&wind_speed_unit=$windSpeedUnit" else ""}${if (precipitationUnit != null) "&precipitation_unit=$precipitationUnit" else ""}"
         val request = Request.Builder()
             .url(url)
             .build()
@@ -286,12 +294,18 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val selectedTemperatureUnit = temperatureUnitFlow.first().lowercase()
-                val selectedWindSpeedUnit = getDataNameFromDisplayName(windSpeedUnitFlow.first())
+                val selectedTemperatureUnit = temperatureUnitFlow.first()
+                val selectedWindSpeedUnit = windSpeedUnitFlow.first()
                 val request = buildWeatherRequest(
                     place,
                     WeatherDataType.HOURLY,
-                    listOf("temperature_2m", "precipitation_probability", "weather_code", "wind_speed_10m", "wind_direction_10m"),
+                    listOf(
+                        "temperature_2m",
+                        "precipitation_probability",
+                        "weather_code",
+                        "wind_speed_10m",
+                        "wind_direction_10m"
+                    ),
                     listOf("forecast_days=15", "timezone=auto"),
                     selectedTemperatureUnit,
                     selectedWindSpeedUnit
@@ -320,16 +334,31 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val selectedTemperatureUnit = temperatureUnitFlow.first().lowercase()
-                val selectedWindSpeedUnit = getDataNameFromDisplayName(windSpeedUnitFlow.first())
+                val selectedTemperatureUnit = temperatureUnitFlow.first()
+                val selectedWindSpeedUnit = windSpeedUnitFlow.first()
+                val selectedPrecipitationUnit = precipitationUnitFlow.first()
                 val request = buildWeatherRequest(
                     place,
                     WeatherDataType.CURRENT,
-                    listOf("temperature_2m", "relative_humidity_2m", "dew_point_2m", "apparent_temperature", "is_day", "precipitation", "rain", "showers", "snowfall", "weather_code", "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m"),
+                    listOf(
+                        "temperature_2m",
+                        "relative_humidity_2m",
+                        "dew_point_2m",
+                        "apparent_temperature",
+                        "is_day",
+                        "precipitation",
+                        "rain",
+                        "showers",
+                        "snowfall",
+                        "weather_code",
+                        "wind_speed_10m",
+                        "wind_direction_10m",
+                        "wind_gusts_10m"
+                    ),
                     emptyList(),
                     selectedTemperatureUnit,
                     selectedWindSpeedUnit,
-                    "inch"
+                    selectedPrecipitationUnit
                 )
 
                 try {
@@ -355,16 +384,27 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val selectedTemperatureUnit = temperatureUnitFlow.first().lowercase()
-                val selectedWindSpeedUnit = getDataNameFromDisplayName(windSpeedUnitFlow.first())
+                val selectedTemperatureUnit = temperatureUnitFlow.first()
+                val selectedWindSpeedUnit = windSpeedUnitFlow.first()
+                val selectedPrecipitationUnit = precipitationUnitFlow.first()
                 val request = buildWeatherRequest(
                     place,
                     WeatherDataType.DAILY,
-                    listOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "weather_code", "precipitation_probability_max", "wind_speed_10m_max", "wind_direction_10m_dominant", "uv_index_max"),
+                    listOf(
+                        "temperature_2m_max",
+                        "temperature_2m_min",
+                        "sunrise",
+                        "sunset",
+                        "weather_code",
+                        "precipitation_probability_max",
+                        "wind_speed_10m_max",
+                        "wind_direction_10m_dominant",
+                        "uv_index_max"
+                    ),
                     listOf("forecast_days=15", "timezone=auto"),
                     selectedTemperatureUnit,
                     selectedWindSpeedUnit,
-                    "inch"
+                    selectedPrecipitationUnit
                 )
 
                 try {
@@ -405,6 +445,12 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     suspend fun updateWindSpeedUnit(value: String) {
         preferencesDataStore.edit { preferences ->
             preferences[windSpeedUnit] = value
+        }
+    }
+
+    suspend fun updatePrecipitationUnit(value: String) {
+        preferencesDataStore.edit { preferences ->
+            preferences[precipitationUnit] = value
         }
     }
 }

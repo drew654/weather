@@ -13,6 +13,10 @@ sealed class MeasurementUnit(val dataName: String, val displayName: String) {
 
     data object Mps : MeasurementUnit(dataName = "ms", displayName = "m/s")
 
+    data object Inch : MeasurementUnit(dataName = "inch", displayName = "in")
+
+    data object Millimeter : MeasurementUnit(dataName = "mm", displayName = "mm")
+
     companion object {
         fun getDataNameFromDisplayName(displayName: String): String {
             return MeasurementUnit::class.sealedSubclasses.firstOrNull {

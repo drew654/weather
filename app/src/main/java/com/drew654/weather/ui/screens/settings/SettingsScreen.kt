@@ -46,6 +46,8 @@ fun SettingsScreen(
         weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
     val windSpeedUnit =
         weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
+    val precipitationUnit =
+        weatherViewModel.precipitationUnitFlow.collectAsState(initial = MeasurementUnit.Inch.dataName)
 
     BackHandler {
         navController.navigate(Screen.Weather.route) {
@@ -134,6 +136,20 @@ fun SettingsScreen(
                         MeasurementUnit.Kph.displayName,
                         MeasurementUnit.Mps.displayName,
                         MeasurementUnit.Knots.displayName
+                    )
+                )
+                SettingsDropdownRow(
+                    label = "Precipitation Unit",
+                    value = getDisplayNameFromDataName(precipitationUnit.value),
+                    onValueChange = {
+                        coroutineScope.launch {
+                            weatherViewModel.updatePrecipitationUnit(getDataNameFromDisplayName(it))
+                            weatherViewModel.fetchWeather()
+                        }
+                    },
+                    options = listOf(
+                        MeasurementUnit.Inch.displayName,
+                        MeasurementUnit.Millimeter.displayName
                     )
                 )
             }

@@ -266,17 +266,36 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    private fun buildWeatherRequest(
+        place: Place,
+        weatherDataType: WeatherDataType,
+        weatherDataFields: List<String>,
+        options: List<String> = emptyList(),
+        temperatureUnit: String? = null,
+        windSpeedUnit: String? = null,
+        precipitationUnit: String? = null
+    ): Request {
+        val url = "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&${weatherDataType.value}=${weatherDataFields.joinToString(",")}${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}${if (temperatureUnit != null) "&temperature_unit=$temperatureUnit" else ""}${if (windSpeedUnit != null) "&wind_speed_unit=$windSpeedUnit" else ""}${if (precipitationUnit != null) "&precipitation_unit=$precipitationUnit" else ""}"
+        val request = Request.Builder()
+            .url(url)
+            .build()
+        return request
+    }
+
     private fun fetchForecast(place: Place) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val selectedUnit = temperatureUnitFlow.first().lowercase()
+                val selectedTemperatureUnit = temperatureUnitFlow.first().lowercase()
                 val selectedWindSpeedUnit = getDataNameFromDisplayName(windSpeedUnitFlow.first())
-                val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&temperature_unit=${selectedUnit}&wind_speed_unit=${selectedWindSpeedUnit}&timezone=auto&forecast_days=15"
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
+                val request = buildWeatherRequest(
+                    place,
+                    WeatherDataType.HOURLY,
+                    listOf("temperature_2m", "precipitation_probability", "weather_code", "wind_speed_10m", "wind_direction_10m"),
+                    listOf("forecast_days=15", "timezone=auto"),
+                    selectedTemperatureUnit,
+                    selectedWindSpeedUnit
+                )
 
                 try {
                     client.newCall(request).execute().use { response ->
@@ -301,13 +320,17 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val selectedUnit = temperatureUnitFlow.first().lowercase()
+                val selectedTemperatureUnit = temperatureUnitFlow.first().lowercase()
                 val selectedWindSpeedUnit = getDataNameFromDisplayName(windSpeedUnitFlow.first())
-                val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&temperature_unit=${selectedUnit}&wind_speed_unit=${selectedWindSpeedUnit}&precipitation_unit=inch"
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
+                val request = buildWeatherRequest(
+                    place,
+                    WeatherDataType.CURRENT,
+                    listOf("temperature_2m", "relative_humidity_2m", "dew_point_2m", "apparent_temperature", "is_day", "precipitation", "rain", "showers", "snowfall", "weather_code", "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m"),
+                    emptyList(),
+                    selectedTemperatureUnit,
+                    selectedWindSpeedUnit,
+                    "inch"
+                )
 
                 try {
                     client.newCall(request).execute().use { response ->
@@ -332,13 +355,17 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
-                val selectedUnit = temperatureUnitFlow.first().lowercase()
+                val selectedTemperatureUnit = temperatureUnitFlow.first().lowercase()
                 val selectedWindSpeedUnit = getDataNameFromDisplayName(windSpeedUnitFlow.first())
-                val url =
-                    "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,weather_code,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant,uv_index_max&temperature_unit=${selectedUnit}&wind_speed_unit=${selectedWindSpeedUnit}&precipitation_unit=inch&timezone=auto&forecast_days=15"
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
+                val request = buildWeatherRequest(
+                    place,
+                    WeatherDataType.DAILY,
+                    listOf("temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "weather_code", "precipitation_probability_max", "wind_speed_10m_max", "wind_direction_10m_dominant", "uv_index_max"),
+                    listOf("forecast_days=15", "timezone=auto"),
+                    selectedTemperatureUnit,
+                    selectedWindSpeedUnit,
+                    "inch"
+                )
 
                 try {
                     client.newCall(request).execute().use { response ->

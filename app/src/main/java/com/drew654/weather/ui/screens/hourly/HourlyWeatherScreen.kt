@@ -23,8 +23,7 @@ fun HourlyWeatherScreen(
     weatherViewModel: WeatherViewModel,
     hourlyListState: LazyListState,
 ) {
-    val hourlyForecast = weatherViewModel.hourlyForecast.collectAsState()
-    val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
+    val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
     val currentHour = LocalDateTime.now().hour
 
     Box(
@@ -32,7 +31,7 @@ fun HourlyWeatherScreen(
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
     ) {
-        if (hourlyForecast.value != null) {
+        if (weatherForecast.value != null) {
             LazyColumn(
                 state = hourlyListState
             ) {
@@ -41,28 +40,27 @@ fun HourlyWeatherScreen(
                 }
                 if (currentHour != 23) {
                     items(1) {
-                        DateHeading(hour = currentHour, hourlyForecast = hourlyForecast.value!!)
+                        DateHeading(index = currentHour, hours = weatherForecast.value!!.hours)
                     }
                 }
-                items(hourlyForecast.value?.hourlyTemperature?.size ?: 0) {
+                items(weatherForecast.value?.hourlyTemperature?.size ?: 0) {
                     if (it % 24 == 0 && it != 0) {
-                        DateHeading(hour = it, hourlyForecast = hourlyForecast.value!!)
+                        DateHeading(index = it, hours = weatherForecast.value!!.hours)
                     }
                     if (it > currentHour) {
                         HourRow(
                             weatherViewModel = weatherViewModel,
-                            hour = hourlyForecast.value?.hour?.get(it)?.hour!!,
-                            weatherCode = hourlyForecast.value?.hourlyWeatherCode?.get(it)!!,
-                            precipitationProbability = hourlyForecast.value?.hourlyPrecipitationProbability?.get(
-                                it
-                            )!!,
-                            temperature = hourlyForecast.value?.hourlyTemperature?.get(it)!!,
-                            windSpeed = hourlyForecast.value?.hourlyWindSpeed?.get(it)!!,
-                            windDirection = hourlyForecast.value?.hourlyWindDirection?.get(it)!!,
+                            hour = weatherForecast.value?.hours?.get(it)?.hour!!,
+                            weatherCode = weatherForecast.value?.hourlyWeatherCode?.get(it)!!,
+                            precipitationProbability = weatherForecast.value
+                                ?.hourlyPrecipitationProbability?.get(it)!!,
+                            temperature = weatherForecast.value?.hourlyTemperature?.get(it)!!,
+                            windSpeed = weatherForecast.value?.hourlyWindSpeed?.get(it)!!,
+                            windDirection = weatherForecast.value?.hourlyWindDirection?.get(it)!!,
                             isDay = hourIsDay(
-                                hour = hourlyForecast.value?.hour?.get(it)?.hour!!,
-                                sunrise = dailyForecast.value?.dailySunrise?.get(0)!!,
-                                sunset = dailyForecast.value?.dailySunset?.get(0)!!
+                                hour = weatherForecast.value?.hours?.get(it)?.hour!!,
+                                sunrise = weatherForecast.value?.dailySunrise?.get(0)!!,
+                                sunset = weatherForecast.value?.dailySunset?.get(0)!!
                             )
                         )
                     }

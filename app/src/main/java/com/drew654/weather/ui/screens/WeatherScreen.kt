@@ -38,7 +38,7 @@ fun WeatherScreen(
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val hourlyListState = rememberLazyListState()
-    val currentWeather = weatherViewModel.currentWeather.collectAsState()
+    val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
 
     Scaffold(
         topBar = {
@@ -105,7 +105,7 @@ fun WeatherScreen(
             }
         }
     ) { innerPadding ->
-        if (currentWeather.value == null) {
+        if (weatherForecast.value == null) {
             Box(
                 contentAlignment = androidx.compose.ui.Alignment.Center,
                 modifier = Modifier

@@ -16,14 +16,14 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
-import com.drew654.weather.data.jsonToCurrentWeather
-import com.drew654.weather.data.jsonToDailyForecast
-import com.drew654.weather.data.jsonToHourlyForecast
+import com.drew654.weather.data.jsonToWeatherForecast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -66,14 +67,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _fetchedPlaces = MutableStateFlow<List<Place>>(emptyList())
     val fetchedPlaces: StateFlow<List<Place>> = _fetchedPlaces.asStateFlow()
 
-    private val _hourlyForecast = MutableStateFlow<HourlyForecast?>(null)
-    val hourlyForecast: StateFlow<HourlyForecast?> = _hourlyForecast.asStateFlow()
-
-    private val _currentWeather = MutableStateFlow<CurrentWeather?>(null)
-    val currentWeather: StateFlow<CurrentWeather?> = _currentWeather.asStateFlow()
-
-    private val _dailyForecast = MutableStateFlow<DailyForecast?>(null)
-    val dailyForecast: StateFlow<DailyForecast?> = _dailyForecast.asStateFlow()
+    private val _weatherForecast = MutableStateFlow<WeatherForecast?>(null)
+    val weatherForecast: StateFlow<WeatherForecast?> = _weatherForecast.asStateFlow()
 
     private val _selectedDay = MutableStateFlow(0)
     val selectedDay: StateFlow<Int> = _selectedDay.asStateFlow()
@@ -213,16 +208,12 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     fun fetchWeather() {
         if (_selectedPlace.value != null) {
-            fetchCurrentWeather(_selectedPlace.value!!)
-            fetchHourlyForecast(_selectedPlace.value!!)
-            fetchDailyForecast(_selectedPlace.value!!)
+            fetchWeatherForecast(_selectedPlace.value!!)
         }
     }
 
     fun clearWeather() {
-        _hourlyForecast.value = null
-        _currentWeather.value = null
-        _dailyForecast.value = null
+        _weatherForecast.value = null
     }
 
     fun clearFetchedPlaces() {
@@ -289,139 +280,114 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         return request
     }
 
-    private fun fetchHourlyForecast(place: Place) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val client = OkHttpClient()
-                val selectedTemperatureUnit = temperatureUnitFlow.first()
-                val selectedWindSpeedUnit = windSpeedUnitFlow.first()
-                val request = buildWeatherRequest(
-                    place,
-                    WeatherDataType.HOURLY,
-                    listOf(
-                        "temperature_2m",
-                        "precipitation_probability",
-                        "weather_code",
-                        "wind_speed_10m",
-                        "wind_direction_10m"
-                    ),
-                    listOf("forecast_days=15", "timezone=auto"),
-                    selectedTemperatureUnit,
-                    selectedWindSpeedUnit
-                )
-
-                try {
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) {
-                            throw IOException("Unexpected code $response")
-                        }
-
-                        val responseBody = response.body?.string() ?: ""
-                        val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
-                        val hourly = jsonObject["hourly"]?.jsonObject
-
-                        _hourlyForecast.value = jsonToHourlyForecast(hourly ?: jsonObject)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
-
-    private fun fetchCurrentWeather(place: Place) {
+    private fun fetchWeatherForecast(place: Place) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val client = OkHttpClient()
                 val selectedTemperatureUnit = temperatureUnitFlow.first()
                 val selectedWindSpeedUnit = windSpeedUnitFlow.first()
                 val selectedPrecipitationUnit = precipitationUnitFlow.first()
-                val request = buildWeatherRequest(
-                    place,
-                    WeatherDataType.CURRENT,
-                    listOf(
-                        "temperature_2m",
-                        "relative_humidity_2m",
-                        "dew_point_2m",
-                        "apparent_temperature",
-                        "is_day",
-                        "precipitation",
-                        "rain",
-                        "showers",
-                        "snowfall",
-                        "weather_code",
-                        "wind_speed_10m",
-                        "wind_direction_10m",
-                        "wind_gusts_10m"
-                    ),
-                    emptyList(),
-                    selectedTemperatureUnit,
-                    selectedWindSpeedUnit,
-                    selectedPrecipitationUnit
-                )
 
-                try {
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) {
-                            throw IOException("Unexpected code $response")
-                        }
+                val currentWeatherDeferred = async {
+                    fetchWeatherJson(
+                        client,
+                        buildWeatherRequest(
+                            place,
+                            WeatherDataType.CURRENT,
+                            listOf(
+                                "temperature_2m",
+                                "relative_humidity_2m",
+                                "dew_point_2m",
+                                "apparent_temperature",
+                                "is_day",
+                                "precipitation",
+                                "rain",
+                                "showers",
+                                "snowfall",
+                                "weather_code",
+                                "wind_speed_10m",
+                                "wind_direction_10m"
+                            ),
+                            emptyList(),
+                            selectedTemperatureUnit,
+                            selectedWindSpeedUnit,
+                            selectedPrecipitationUnit
+                        )
+                    )?.jsonObject["current"]?.jsonObject
+                }
 
-                        val responseBody = response.body?.string() ?: ""
-                        val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
-                        val current = jsonObject["current"]?.jsonObject
+                val hourlyForecastDeferred = async {
+                    fetchWeatherJson(
+                        client,
+                        buildWeatherRequest(
+                            place,
+                            WeatherDataType.HOURLY,
+                            listOf(
+                                "temperature_2m",
+                                "precipitation_probability",
+                                "weather_code",
+                                "wind_speed_10m",
+                                "wind_direction_10m"
+                            ),
+                            listOf("forecast_days=15", "timezone=auto"),
+                            selectedTemperatureUnit,
+                            selectedWindSpeedUnit
+                        )
+                    )?.jsonObject["hourly"]?.jsonObject
+                }
 
-                        _currentWeather.value = jsonToCurrentWeather(current ?: jsonObject)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                val dailyForecastDeferred = async {
+                    fetchWeatherJson(
+                        client,
+                        buildWeatherRequest(
+                            place,
+                            WeatherDataType.DAILY,
+                            listOf(
+                                "temperature_2m_max",
+                                "temperature_2m_min",
+                                "sunrise",
+                                "sunset",
+                                "weather_code",
+                                "precipitation_probability_max",
+                                "wind_speed_10m_max",
+                                "wind_direction_10m_dominant",
+                                "uv_index_max"
+                            ),
+                            listOf("forecast_days=15", "timezone=auto"),
+                            selectedTemperatureUnit,
+                            selectedWindSpeedUnit,
+                            selectedPrecipitationUnit
+                        )
+                    )?.jsonObject["daily"]?.jsonObject
+                }
+
+                val (currentWeatherJson, hourlyForecastJson, dailyForecastJson) =
+                    awaitAll(currentWeatherDeferred, hourlyForecastDeferred, dailyForecastDeferred)
+
+                if (currentWeatherJson != null && hourlyForecastJson != null && dailyForecastJson != null) {
+                    _weatherForecast.value = jsonToWeatherForecast(
+                        currentWeatherJson,
+                        hourlyForecastJson,
+                        dailyForecastJson
+                    )
                 }
             }
         }
     }
 
-    private fun fetchDailyForecast(place: Place) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val client = OkHttpClient()
-                val selectedTemperatureUnit = temperatureUnitFlow.first()
-                val selectedWindSpeedUnit = windSpeedUnitFlow.first()
-                val selectedPrecipitationUnit = precipitationUnitFlow.first()
-                val request = buildWeatherRequest(
-                    place,
-                    WeatherDataType.DAILY,
-                    listOf(
-                        "temperature_2m_max",
-                        "temperature_2m_min",
-                        "sunrise",
-                        "sunset",
-                        "weather_code",
-                        "precipitation_probability_max",
-                        "wind_speed_10m_max",
-                        "wind_direction_10m_dominant",
-                        "uv_index_max"
-                    ),
-                    listOf("forecast_days=15", "timezone=auto"),
-                    selectedTemperatureUnit,
-                    selectedWindSpeedUnit,
-                    selectedPrecipitationUnit
-                )
-
-                try {
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) {
-                            throw IOException("Unexpected code $response")
-                        }
-
-                        val responseBody = response.body?.string() ?: ""
-                        val jsonObject = Json.parseToJsonElement(responseBody).jsonObject
-                        val dailyForecast = jsonObject["daily"]?.jsonObject
-
-                        _dailyForecast.value = jsonToDailyForecast(dailyForecast ?: jsonObject)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+    private fun fetchWeatherJson(client: OkHttpClient, request: Request): JsonObject? {
+        return try {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw IOException("Unexpected code $response")
                 }
+
+                val responseBody = response.body?.string() ?: ""
+                Json.parseToJsonElement(responseBody).jsonObject
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

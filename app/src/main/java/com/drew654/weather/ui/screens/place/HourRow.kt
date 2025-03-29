@@ -20,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.drew654.weather.R
+import com.drew654.weather.models.MeasurementUnit
+import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
@@ -39,7 +41,8 @@ fun HourRow(
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    val windUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
+    val windUnit =
+        weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -106,7 +109,11 @@ fun HourRow(
                     .rotate(windDirection.toFloat() + 90)
                     .align(Alignment.CenterVertically)
             )
-            Text(text = "$windSpeed ${windUnit.value} ${degToHdg(windDirection)}")
+            Text(
+                text = "$windSpeed ${getDisplayNameFromDataName(windUnit.value)} ${
+                    degToHdg(windDirection)
+                }"
+            )
         }
     }
 }

@@ -29,6 +29,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.drew654.weather.R
+import com.drew654.weather.models.MeasurementUnit
+import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.calculateStartIndexForDay
 import com.drew654.weather.utils.degToHdg
@@ -50,7 +52,8 @@ fun DailyForecastScreen(
     val dailyForecast = weatherViewModel.dailyForecast.collectAsState()
     val selectedDay = weatherViewModel.selectedDay.collectAsState()
     val currentHour = LocalDateTime.now().hour
-    val windUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
+    val windUnit =
+        weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
 
     Box(
         modifier = Modifier
@@ -106,7 +109,9 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${dailyForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)} ${windUnit.value} ${
+                            text = "${dailyForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)} ${
+                                getDisplayNameFromDataName(windUnit.value)
+                            } ${
                                 degToHdg(
                                     dailyForecast.value?.dailyWindDirectionDominant?.get(selectedDay.value) ?: 0
                                 )

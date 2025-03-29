@@ -22,6 +22,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.drew654.weather.R
+import com.drew654.weather.models.MeasurementUnit
+import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getBeaufortDescription
@@ -33,7 +35,8 @@ fun WindTile(
     weatherViewModel: WeatherViewModel,
     modifier: Modifier = Modifier
 ) {
-    val windSpeedUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
+    val windSpeedUnit =
+        weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
 
     Box(
         modifier = modifier
@@ -52,9 +55,15 @@ fun WindTile(
                 ) {
                     Row {
                         Text(text = "$windSpeed", fontSize = 24.sp)
-                        Text(text = " ${windSpeedUnit.value}", modifier = Modifier.align(Alignment.Bottom))
+                        Text(
+                            text = " ${getDisplayNameFromDataName(windSpeedUnit.value)}",
+                            modifier = Modifier.align(Alignment.Bottom)
+                        )
                     }
-                    Text(text = getBeaufortDescription(windSpeed, windSpeedUnit.value), fontSize = 12.sp)
+                    Text(
+                        text = getBeaufortDescription(windSpeed, windSpeedUnit.value),
+                        fontSize = 12.sp
+                    )
                 }
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally

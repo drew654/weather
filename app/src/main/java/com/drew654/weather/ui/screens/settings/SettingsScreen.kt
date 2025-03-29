@@ -23,6 +23,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.drew654.weather.R
+import com.drew654.weather.models.MeasurementUnit
+import com.drew654.weather.models.MeasurementUnit.Companion.getDataNameFromDisplayName
+import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
 import kotlinx.coroutines.launch
@@ -39,8 +42,10 @@ fun SettingsScreen(
     val preferences = listOf(
         "Swipe to Change Tabs" to swipeToChangeTabs.value
     )
-    val temperatureUnit = weatherViewModel.temperatureUnitFlow.collectAsState(initial = "Fahrenheit")
-    val windSpeedUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = "mph")
+    val temperatureUnit =
+        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
+    val windSpeedUnit =
+        weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
 
     BackHandler {
         navController.navigate(Screen.Weather.route) {
@@ -50,7 +55,7 @@ fun SettingsScreen(
         }
     }
 
-    Scaffold (
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "Settings") },
@@ -103,25 +108,33 @@ fun SettingsScreen(
             items(1) {
                 SettingsDropdownRow(
                     label = "Temperature Unit",
-                    value = temperatureUnit.value,
+                    value = getDisplayNameFromDataName(temperatureUnit.value),
                     onValueChange = {
                         coroutineScope.launch {
-                            weatherViewModel.updateTemperatureUnit(it)
+                            weatherViewModel.updateTemperatureUnit(getDataNameFromDisplayName(it))
                             weatherViewModel.fetchWeather()
                         }
                     },
-                    options = listOf("Fahrenheit", "Celsius")
+                    options = listOf(
+                        MeasurementUnit.Fahrenheit.displayName,
+                        MeasurementUnit.Celsius.displayName
+                    )
                 )
                 SettingsDropdownRow(
                     label = "Wind Speed Unit",
-                    value = windSpeedUnit.value,
+                    value = getDisplayNameFromDataName(windSpeedUnit.value),
                     onValueChange = {
                         coroutineScope.launch {
-                            weatherViewModel.updateWindSpeedUnit(it)
+                            weatherViewModel.updateWindSpeedUnit(getDataNameFromDisplayName(it))
                             weatherViewModel.fetchWeather()
                         }
                     },
-                    options = listOf("mph", "km/h", "m/s", "Knots")
+                    options = listOf(
+                        MeasurementUnit.Mph.displayName,
+                        MeasurementUnit.Kph.displayName,
+                        MeasurementUnit.Mps.displayName,
+                        MeasurementUnit.Knots.displayName
+                    )
                 )
             }
         }

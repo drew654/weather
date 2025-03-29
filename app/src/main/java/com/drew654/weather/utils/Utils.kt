@@ -1,6 +1,7 @@
 package com.drew654.weather.utils
 
 import android.content.Context
+import com.drew654.weather.models.MeasurementUnit
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -18,10 +19,10 @@ fun degToHdg(deg: Int): String {
 
 fun getBeaufortDescription(speed: Double, unit: String): String {
     val mphSpeed = when (unit) {
-        "mph" -> speed
-        "km/h" -> kphToMph(speed)
-        "m/s" -> msToMph(speed)
-        "Knots" -> ktsToMph(speed)
+        MeasurementUnit.Mph.dataName -> speed
+        MeasurementUnit.Kph.dataName -> kphToMph(speed)
+        MeasurementUnit.Mps.dataName -> msToMph(speed)
+        MeasurementUnit.Knots.dataName -> ktsToMph(speed)
         else -> speed
     }
     return when {

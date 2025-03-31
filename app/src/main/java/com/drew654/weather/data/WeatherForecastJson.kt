@@ -16,7 +16,7 @@ fun jsonToWeatherForecast(
     dailyForecastJson: JsonObject
 ): WeatherForecast {
     val currentTemperature = currentWeatherJson["temperature_2m"]?.jsonPrimitive?.double
-    val currentRelativeHumidity = currentWeatherJson["relative_humidity_2m"]?.jsonPrimitive?.double
+    val currentRelativeHumidity = currentWeatherJson["relative_humidity_2m"]?.jsonPrimitive?.int
     val currentDewPoint = currentWeatherJson["dew_point_2m"]?.jsonPrimitive?.double
     val currentApparentTemperature =
         currentWeatherJson["apparent_temperature"]?.jsonPrimitive?.double
@@ -74,7 +74,7 @@ fun jsonToWeatherForecast(
 
     return WeatherForecast(
         currentTemperature = currentTemperature ?: 0.0,
-        currentRelativeHumidity = currentRelativeHumidity ?: 0.0,
+        currentRelativeHumidity = currentRelativeHumidity ?: 0,
         currentDewPoint = currentDewPoint ?: 0.0,
         currentApparentTemperature = currentApparentTemperature ?: 0.0,
         currentIsDay = currentIsDay,

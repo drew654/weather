@@ -80,6 +80,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     companion object {
         val swipeToChangeTabs = booleanPreferencesKey("swipe_to_change_tabs")
+        val showDecimal = booleanPreferencesKey("show_decimal")
         val temperatureUnit = stringPreferencesKey("temperature_unit")
         val windSpeedUnit = stringPreferencesKey("wind_speed_unit")
         val precipitationUnit = stringPreferencesKey("precipitation_unit")
@@ -87,6 +88,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     val swipeToChangeTabsFlow: Flow<Boolean> = preferencesDataStore.data.map { preferences ->
         preferences[swipeToChangeTabs] == true
+    }
+
+    val showDecimalFlow: Flow<Boolean> = preferencesDataStore.data.map { preferences ->
+        preferences[showDecimal] == true
     }
 
     val temperatureUnitFlow: Flow<String> = preferencesDataStore.data.map { preferences ->
@@ -398,6 +403,12 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     suspend fun updateSwipeToChangeTabs(value: Boolean) {
         preferencesDataStore.edit { preferences ->
             preferences[swipeToChangeTabs] = value
+        }
+    }
+
+    suspend fun updateShowDecimal(value: Boolean) {
+        preferencesDataStore.edit { preferences ->
+            preferences[showDecimal] = value
         }
     }
 

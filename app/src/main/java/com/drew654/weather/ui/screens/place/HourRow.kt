@@ -26,6 +26,7 @@ import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
+import com.drew654.weather.utils.showDouble
 
 @Composable
 fun HourRow(
@@ -43,6 +44,7 @@ fun HourRow(
     val screenWidth = configuration.screenWidthDp.dp
     val windUnit =
         weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
+    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -94,7 +96,7 @@ fun HourRow(
                 .fillMaxWidth()
         ) {
             Spacer(Modifier.width(screenWidth * 0.45f))
-            Text(text = "$temperature°")
+            Text(text = "${showDouble(temperature, showDecimal.value)}°")
         }
         Row(
             modifier = Modifier
@@ -110,7 +112,7 @@ fun HourRow(
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = "$windSpeed ${getDisplayNameFromDataName(windUnit.value)} ${
+                text = "${showDouble(windSpeed, showDecimal.value)} ${getDisplayNameFromDataName(windUnit.value)} ${
                     degToHdg(windDirection)
                 }"
             )

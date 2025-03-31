@@ -27,6 +27,7 @@ import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDa
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getBeaufortDescription
+import com.drew654.weather.utils.showDouble
 
 @Composable
 fun WindTile(
@@ -37,6 +38,7 @@ fun WindTile(
 ) {
     val windSpeedUnit =
         weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
+    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
 
     Box(
         modifier = modifier
@@ -54,7 +56,7 @@ fun WindTile(
                     verticalArrangement = Arrangement.Bottom
                 ) {
                     Row {
-                        Text(text = "$windSpeed", fontSize = 24.sp)
+                        Text(text = showDouble(windSpeed, showDecimal.value), fontSize = 24.sp)
                         Text(
                             text = " ${getDisplayNameFromDataName(windSpeedUnit.value)}",
                             modifier = Modifier.align(Alignment.Bottom)

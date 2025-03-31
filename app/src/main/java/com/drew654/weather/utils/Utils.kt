@@ -7,6 +7,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import java.time.LocalDateTime
+import kotlin.math.roundToInt
 
 fun degToHdg(deg: Int): String {
     val directions = listOf(
@@ -102,4 +103,12 @@ fun mphToKts(mph: Double): Double {
 
 fun ktsToMph(kts: Double): Double {
     return kts * 1.15078
+}
+
+fun showDouble(value: Double, showDecimal: Boolean): String {
+    return if (showDecimal) {
+        value.toString()
+    } else {
+        value.roundToInt().toString()
+    }
 }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,11 +20,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.drew654.weather.R
+import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
+import com.drew654.weather.utils.showDouble
 
 @Composable
 fun DailyForecastTile(
+    weatherViewModel: WeatherViewModel,
     context: Context,
     onClick: () -> Unit,
     isSelected: () -> Boolean,
@@ -34,6 +38,8 @@ fun DailyForecastTile(
     weatherCode: Int,
     precipitationProbability: Int,
 ) {
+    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -46,10 +52,10 @@ fun DailyForecastTile(
             text = "$dayOfWeek $dayOfMonth"
         )
         Text(
-            text = "$maxTemperature°",
+            text = "${showDouble(maxTemperature, showDecimal.value)}°",
             fontWeight = FontWeight.Bold
         )
-        Text(text = "$minTemperature°")
+        Text(text = "${showDouble(minTemperature, showDecimal.value)}°")
         AsyncImage(
             model = getWeatherIconUrl(
                 weatherCode = weatherCode,

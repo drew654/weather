@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 class WeatherForecast(
     val currentTemperature: Double,
-    val currentRelativeHumidity: Double,
+    val currentRelativeHumidity: Int,
     val currentDewPoint: Double,
     val currentApparentTemperature: Double,
     val currentIsDay: Boolean,

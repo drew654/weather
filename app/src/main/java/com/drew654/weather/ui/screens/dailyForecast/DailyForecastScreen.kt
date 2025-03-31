@@ -35,6 +35,7 @@ import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.calculateStartIndexForDay
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
+import com.drew654.weather.utils.showDouble
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -54,6 +55,7 @@ fun DailyForecastScreen(
     val currentHour = LocalDateTime.now().hour
     val windUnit =
         weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
+    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
 
     Box(
         modifier = Modifier
@@ -68,6 +70,7 @@ fun DailyForecastScreen(
                 }
                 itemsIndexed(weatherForecast.value?.days ?: listOf()) { index, _ ->
                     DailyForecastTile(
+                        weatherViewModel = weatherViewModel,
                         context = context,
                         onClick = {
                             weatherViewModel.setSelectedDay(index)
@@ -109,7 +112,7 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${weatherForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)} ${
+                            text = "${showDouble(weatherForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)!!, showDecimal.value)} ${
                                 getDisplayNameFromDataName(windUnit.value)
                             } ${
                                 degToHdg(
@@ -169,7 +172,7 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${weatherForecast.value?.dailyUvIndexMax?.get(selectedDay.value)}",
+                            text = showDouble(weatherForecast.value?.dailyUvIndexMax?.get(selectedDay.value)!!, showDecimal.value),
                             fontWeight = FontWeight.Bold
                         )
                     }

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun VerticalProgressBar(
-    progress: Double
+    progress: Int
 ) {
     Column(
         verticalArrangement = Arrangement.Bottom,
@@ -33,7 +33,7 @@ fun VerticalProgressBar(
                     RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
                 )
                 .width(32.dp)
-                .height((progress / 100 * 80).dp)
+                .height((progress.toDouble() / 100 * 80).dp)
         )
     }
 }

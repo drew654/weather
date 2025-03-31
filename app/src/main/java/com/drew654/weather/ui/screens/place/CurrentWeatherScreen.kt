@@ -24,6 +24,7 @@ import coil.compose.AsyncImage
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
+import com.drew654.weather.utils.showDouble
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,6 +32,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val context = LocalContext.current
     val place = weatherViewModel.selectedPlace.collectAsState()
     val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
+    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
 
     Box(
         modifier = Modifier
@@ -45,7 +47,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                 Row {
                     Row {
                         Text(
-                            text = "${weatherForecast.value?.currentTemperature}°",
+                            text = "${showDouble(weatherForecast.value?.currentTemperature!!, showDecimal.value)}°",
                             fontSize = 48.sp
                         )
                         AsyncImage(
@@ -74,12 +76,12 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                             ),
                             modifier = Modifier.align(Alignment.End)
                         )
-                        Text(text = "Feels like ${weatherForecast.value?.currentApparentTemperature}°")
+                        Text(text = "Feels like ${showDouble(weatherForecast.value?.currentApparentTemperature!!, showDecimal.value)}°")
                     }
                 }
                 Text(
-                    text = "High: ${weatherForecast.value?.dailyMaxTemperature?.get(0)}° • Low: ${
-                        weatherForecast.value?.dailyMinTemperature?.get(0)
+                    text = "High: ${showDouble(weatherForecast.value?.dailyMaxTemperature?.get(0)!!, showDecimal.value)}° • Low: ${
+                        showDouble(weatherForecast.value?.dailyMinTemperature?.get(0)!!, showDecimal.value)
                     }°"
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -93,6 +95,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     HumidityTile(
+                        weatherViewModel = weatherViewModel,
                         humidity = weatherForecast.value?.currentRelativeHumidity!!,
                         dewPoint = weatherForecast.value?.currentDewPoint!!,
                     )

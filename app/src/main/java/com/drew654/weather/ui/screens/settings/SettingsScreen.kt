@@ -118,6 +118,7 @@ fun SettingsScreen(
                         coroutineScope.launch {
                             weatherViewModel.updateTemperatureUnit(getDataNameFromDisplayName(it))
                             weatherViewModel.fetchWeather()
+                            focusManager.clearFocus()
                         }
                     },
                     options = listOf(
@@ -132,6 +133,7 @@ fun SettingsScreen(
                         coroutineScope.launch {
                             weatherViewModel.updateWindSpeedUnit(getDataNameFromDisplayName(it))
                             weatherViewModel.fetchWeather()
+                            focusManager.clearFocus()
                         }
                     },
                     options = listOf(
@@ -148,6 +150,7 @@ fun SettingsScreen(
                         coroutineScope.launch {
                             weatherViewModel.updatePrecipitationUnit(getDataNameFromDisplayName(it))
                             weatherViewModel.fetchWeather()
+                            focusManager.clearFocus()
                         }
                     },
                     options = listOf(

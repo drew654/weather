@@ -238,6 +238,7 @@ fun DailyForecastScreen(
             }
             Text(
                 text = "Hourly Forecast",
+                color = MaterialTheme.colorScheme.surfaceTint,
                 modifier = Modifier
                     .padding(16.dp)
                     .clickable {

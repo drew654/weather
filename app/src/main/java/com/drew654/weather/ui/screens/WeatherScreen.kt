@@ -34,11 +34,15 @@ fun WeatherScreen(
     weatherViewModel: WeatherViewModel,
     navController: NavHostController
 ) {
-    val pagerState = rememberPagerState(pageCount = { 3 })
+    val currentWeatherPage = weatherViewModel.currentWeatherPage.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val hourlyListState = rememberLazyListState()
     val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
+    val pagerState = rememberPagerState(
+        initialPage = currentWeatherPage.value,
+        pageCount = { 3 }
+    )
 
     Scaffold(
         topBar = {
@@ -58,6 +62,7 @@ fun WeatherScreen(
                         onClick = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(0)
+                                weatherViewModel.setCurrentWeatherPage(0)
                             }
                         },
                         icon = {
@@ -75,6 +80,7 @@ fun WeatherScreen(
                         onClick = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(1)
+                                weatherViewModel.setCurrentWeatherPage(1)
                             }
                         },
                         icon = {
@@ -92,6 +98,7 @@ fun WeatherScreen(
                         onClick = {
                             coroutineScope.launch {
                                 pagerState.animateScrollToPage(2)
+                                weatherViewModel.setCurrentWeatherPage(2)
                             }
                         },
                         icon = {

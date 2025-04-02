@@ -76,6 +76,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _currentLocation = MutableStateFlow<Location?>(null)
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
+    private val _currentWeatherPage = MutableStateFlow(0)
+    val currentWeatherPage: StateFlow<Int> = _currentWeatherPage.asStateFlow()
+
     private val preferencesDataStore: DataStore<Preferences> = application.preferencesDataStore
 
     companion object {
@@ -398,6 +401,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     fun setSelectedDay(day: Int) {
         _selectedDay.value = day
+    }
+
+    fun setCurrentWeatherPage(page: Int) {
+        _currentWeatherPage.value = page
     }
 
     suspend fun updateSwipeToChangeTabs(value: Boolean) {

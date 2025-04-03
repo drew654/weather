@@ -7,8 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -37,18 +35,6 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Weather.route,
-                        enterTransition = {
-                            EnterTransition.None
-                        },
-                        exitTransition = {
-                            ExitTransition.None
-                        },
-                        popEnterTransition = {
-                            EnterTransition.None
-                        },
-                        popExitTransition = {
-                            ExitTransition.None
-                        },
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable(Screen.Weather.route) {

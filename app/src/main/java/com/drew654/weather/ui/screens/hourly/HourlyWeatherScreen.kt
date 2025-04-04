@@ -1,5 +1,6 @@
 package com.drew654.weather.ui.screens.hourly
 
+import android.text.format.DateFormat.is24HourFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -11,9 +12,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.ui.screens.place.HourRow
+import com.drew654.weather.utils.formatHour
 import com.drew654.weather.utils.hourIsDay
 import java.time.LocalDateTime
 
@@ -25,6 +28,7 @@ fun HourlyWeatherScreen(
 ) {
     val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
     val currentHour = LocalDateTime.now().hour
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -50,7 +54,7 @@ fun HourlyWeatherScreen(
                     if (it > currentHour) {
                         HourRow(
                             weatherViewModel = weatherViewModel,
-                            hour = weatherForecast.value?.hours?.get(it)?.hour!!,
+                            hour = formatHour(weatherForecast.value?.hours?.get(it), is24HourFormat(context)),
                             weatherCode = weatherForecast.value?.hourlyWeatherCode?.get(it)!!,
                             precipitationProbability = weatherForecast.value
                                 ?.hourlyPrecipitationProbability?.get(it)!!,

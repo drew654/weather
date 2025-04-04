@@ -7,6 +7,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.roundToInt
 
 fun degToHdg(deg: Int): String {
@@ -111,4 +113,13 @@ fun showDouble(value: Double, showDecimal: Boolean): String {
     } else {
         value.roundToInt().toString()
     }
+}
+
+fun formatHour(localDateTime: LocalDateTime?, is24HourFormat: Boolean): String {
+    return localDateTime?.let {
+        val pattern = if (is24HourFormat) "H" else "ha"
+        val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
+        val formattedTime = it.format(formatter)
+        formattedTime.replace("AM", "a").replace("PM", "p")
+    } ?: ""
 }

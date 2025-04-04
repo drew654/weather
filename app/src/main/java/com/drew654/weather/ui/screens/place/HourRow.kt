@@ -31,7 +31,7 @@ import com.drew654.weather.utils.showDouble
 @Composable
 fun HourRow(
     weatherViewModel: WeatherViewModel,
-    hour: Int,
+    hour: String,
     weatherCode: Int,
     precipitationProbability: Int,
     temperature: Double,
@@ -56,7 +56,7 @@ fun HourRow(
                 .fillMaxWidth()
         ) {
             Spacer(Modifier.width(screenWidth * 0.05f))
-            Text(text = "$hour")
+            Text(text = hour)
         }
         Row(
             modifier = Modifier

@@ -17,6 +17,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
 import com.drew654.weather.data.jsonToWeatherForecast
+import com.drew654.weather.utils.saveWeatherForecastJson
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -373,11 +375,13 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                     awaitAll(currentWeatherDeferred, hourlyForecastDeferred, dailyForecastDeferred)
 
                 if (currentWeatherJson != null && hourlyForecastJson != null && dailyForecastJson != null) {
-                    _weatherForecast.value = jsonToWeatherForecast(
-                        currentWeatherJson,
-                        hourlyForecastJson,
-                        dailyForecastJson
-                    )
+                    val weatherForecastJson = buildJsonObject {
+                        put("current", currentWeatherJson)
+                        put("hourly", hourlyForecastJson)
+                        put("daily", dailyForecastJson)
+                    }
+                    _weatherForecast.value = jsonToWeatherForecast(weatherForecastJson)
+                    saveWeatherForecastJson(getApplication(), weatherForecastJson.toString())
                 }
             }
         }

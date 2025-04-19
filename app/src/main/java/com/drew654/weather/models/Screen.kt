@@ -4,4 +4,6 @@ sealed class Screen(val route: String) {
     data object Weather : Screen(route = "weather")
 
     data object Settings : Screen(route = "settings")
+
+    data object OfflineWeatherDebug : Screen(route = "offlineWeatherDebug")
 }

@@ -5,16 +5,19 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 fun jsonToWeatherForecast(
-    currentWeatherJson: JsonObject,
-    hourlyForecastJson: JsonObject,
-    dailyForecastJson: JsonObject
+    weatherForecastJson: JsonObject
 ): WeatherForecast {
+    val currentWeatherJson = weatherForecastJson["current"]?.jsonObject ?: JsonObject(emptyMap())
+    val hourlyForecastJson = weatherForecastJson["hourly"]?.jsonObject ?: JsonObject(emptyMap())
+    val dailyForecastJson = weatherForecastJson["daily"]?.jsonObject ?: JsonObject(emptyMap())
+
     val currentTemperature = currentWeatherJson["temperature_2m"]?.jsonPrimitive?.double
     val currentRelativeHumidity = currentWeatherJson["relative_humidity_2m"]?.jsonPrimitive?.int
     val currentDewPoint = currentWeatherJson["dew_point_2m"]?.jsonPrimitive?.double

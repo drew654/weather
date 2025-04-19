@@ -158,6 +158,12 @@ fun SettingsScreen(
                         MeasurementUnit.Millimeter.displayName
                     )
                 )
+                RowButton(
+                    label = "Offline Weather Debug Screen",
+                    onClick = {
+                        navController.navigate(Screen.OfflineWeatherDebug.route)
+                    }
+                )
             }
         }
     }

@@ -17,7 +17,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.drew654.weather.data.PlaceListSerializer
 import com.drew654.weather.data.jsonToWeatherForecast
-import com.drew654.weather.utils.saveWeatherForecastJson
+import com.drew654.weather.utils.OfflineWeather.saveWeatherForecastJson
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers

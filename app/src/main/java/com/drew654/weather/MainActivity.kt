@@ -16,7 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.drew654.weather.models.Screen
 import com.drew654.weather.models.WeatherViewModel
-import com.drew654.weather.ui.screens.OfflineWeatherDebugScreen
+import com.drew654.weather.ui.screens.DebugScreen
 import com.drew654.weather.ui.screens.WeatherScreen
 import com.drew654.weather.ui.screens.settings.SettingsScreen
 import com.drew654.weather.ui.theme.WeatherTheme
@@ -50,8 +50,8 @@ class MainActivity : ComponentActivity() {
                                 navController = navController
                             )
                         }
-                        composable(Screen.OfflineWeatherDebug.route) {
-                            OfflineWeatherDebugScreen()
+                        composable(Screen.Debug.route) {
+                            DebugScreen()
                         }
                     }
                     if (!weatherViewModel.hasLocationPermission()) {

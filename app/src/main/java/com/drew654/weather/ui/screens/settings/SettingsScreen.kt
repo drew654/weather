@@ -12,7 +12,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -62,7 +61,13 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Settings") },
+                title = {
+                    TappableText(
+                        text = "Settings",
+                        navController = navController,
+                        route = Screen.Debug.route
+                    )
+                },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -157,12 +162,6 @@ fun SettingsScreen(
                         MeasurementUnit.Inch.displayName,
                         MeasurementUnit.Millimeter.displayName
                     )
-                )
-                RowButton(
-                    label = "Offline Weather Debug Screen",
-                    onClick = {
-                        navController.navigate(Screen.OfflineWeatherDebug.route)
-                    }
                 )
             }
         }

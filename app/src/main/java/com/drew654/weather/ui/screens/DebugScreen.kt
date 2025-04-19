@@ -21,7 +21,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun OfflineWeatherDebugScreen() {
+fun DebugScreen() {
     val context = LocalContext.current
     val weatherForecastJson = loadWeatherForecastJson(context = context)
     val weatherForecast = weatherForecastJson?.let { json ->

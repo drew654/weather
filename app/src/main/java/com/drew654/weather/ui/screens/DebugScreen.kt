@@ -67,7 +67,7 @@ fun DebugScreen() {
                         }"
                     )
                     Text(
-                        text = "Current Temperature: ${
+                        text = "Temperature: ${
                             getOfflineTemperature(
                                 weatherForecast,
                                 currentTime.withHour(timePickerState.hour)
@@ -76,7 +76,7 @@ fun DebugScreen() {
                         }"
                     )
                     Text(
-                        text = "Current Weather Code: ${
+                        text = "Weather Code: ${
                             getOfflineWeatherCode(
                                 weatherForecast,
                                 currentTime.withHour(timePickerState.hour)
@@ -85,7 +85,7 @@ fun DebugScreen() {
                         }"
                     )
                     Text(
-                        text = "Current Precipitation Probability: ${
+                        text = "Precipitation Probability: ${
                             getOfflinePrecipitationProbability(
                                 weatherForecast,
                                 currentTime.withHour(timePickerState.hour)
@@ -94,7 +94,7 @@ fun DebugScreen() {
                         }"
                     )
                     Text(
-                        text = "Current Wind Speed: ${
+                        text = "Wind Speed: ${
                             getOfflineWindSpeed(
                                 weatherForecast,
                                 currentTime.withHour(timePickerState.hour)
@@ -103,7 +103,7 @@ fun DebugScreen() {
                         }"
                     )
                     Text(
-                        text = "Current Wind Direction: ${
+                        text = "Wind Direction: ${
                             getOfflineWindDirection(
                                 weatherForecast,
                                 currentTime.withHour(timePickerState.hour)

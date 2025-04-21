@@ -6,8 +6,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -131,4 +133,9 @@ fun formatTime(localDateTime: LocalDateTime?, is24HourFormat: Boolean): String {
         val formattedTime = it.format(formatter)
         formattedTime.replace("AM", "a").replace("PM", "p")
     } ?: ""
+}
+
+fun convertMillisToDate(millis: Long): String {
+    val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    return formatter.format(Date(millis))
 }

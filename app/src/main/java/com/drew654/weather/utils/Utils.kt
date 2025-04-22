@@ -135,6 +135,13 @@ fun formatTime(localDateTime: LocalDateTime?, is24HourFormat: Boolean): String {
     } ?: ""
 }
 
+fun formatTime(hours: Int, minutes: Int, is24HourFormat: Boolean): String {
+    val pattern = if (is24HourFormat) "HH:mm" else "h:mm a"
+    val formatter = DateTimeFormatter.ofPattern(pattern, Locale.getDefault())
+    val formattedTime = LocalDateTime.of(2023, 1, 1, hours, minutes).format(formatter)
+    return formattedTime.replace("AM", "a").replace("PM", "p")
+}
+
 fun convertMillisToDate(millis: Long): String {
     val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
     return formatter.format(Date(millis))

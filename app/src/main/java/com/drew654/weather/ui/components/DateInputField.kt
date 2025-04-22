@@ -5,8 +5,6 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -17,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
+import com.drew654.weather.R
 import com.drew654.weather.utils.convertMillisToDate
 
 @Composable
@@ -40,7 +40,10 @@ fun DateInputField(
         onValueChange = { },
         placeholder = { Text("MM/DD/YYYY") },
         trailingIcon = {
-            Icon(Icons.Default.DateRange, contentDescription = "Select date")
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_calendar_month_24),
+                contentDescription = "Select date"
+            )
         },
         readOnly = true,
         interactionSource = interactionSource,

@@ -335,6 +335,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                             listOf(
                                 "temperature_2m",
                                 "precipitation_probability",
+                                "relative_humidity_2m",
+                                "dew_point_2m",
+                                "apparent_temperature",
                                 "weather_code",
                                 "wind_speed_10m",
                                 "wind_direction_10m"

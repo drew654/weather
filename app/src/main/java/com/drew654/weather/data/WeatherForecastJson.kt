@@ -36,6 +36,12 @@ fun jsonToWeatherForecast(
     }
     val hourlyTemperature =
         hourlyForecastJson["temperature_2m"]?.jsonArray?.map { it.jsonPrimitive.double }
+    val hourlyRelativeHumidity =
+        hourlyForecastJson["relative_humidity_2m"]?.jsonArray?.map { it.jsonPrimitive.int }
+    val hourlyDewPoint =
+        hourlyForecastJson["dew_point_2m"]?.jsonArray?.map { it.jsonPrimitive.double }
+    val hourlyApparentTemperature =
+        hourlyForecastJson["apparent_temperature"]?.jsonArray?.map { it.jsonPrimitive.double }
     val hourlyWeatherCode =
         hourlyForecastJson["weather_code"]?.jsonArray?.map { it.jsonPrimitive.int }
     val hourlyPrecipitationProbability =
@@ -86,6 +92,9 @@ fun jsonToWeatherForecast(
         currentWindDirection = currentWindDirection ?: 0,
         hours = hours ?: emptyList(),
         hourlyTemperature = hourlyTemperature ?: emptyList(),
+        hourlyRelativeHumidity = hourlyRelativeHumidity ?: emptyList(),
+        hourlyDewPoint = hourlyDewPoint ?: emptyList(),
+        hourlyApparentTemperature = hourlyApparentTemperature ?: emptyList(),
         hourlyWeatherCode = hourlyWeatherCode ?: emptyList(),
         hourlyPrecipitationProbability = hourlyPrecipitationProbability ?: emptyList(),
         hourlyWindSpeed = hourlyWindSpeed ?: emptyList(),

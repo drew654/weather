@@ -66,16 +66,59 @@ object OfflineWeather {
         return Triple(index1, index2, percentage)
     }
 
-    fun getOfflineTemperature(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Double? {
-        val (index1, index2, percentage) = getIndicesAndPercentage(weatherForecast.hours, currentTime)
+    fun getOfflineTemperature(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Double? {
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
             ?: return null
         val temperature =
             weatherForecast.hourlyTemperature[index1] + (weatherForecast.hourlyTemperature[index2] - weatherForecast.hourlyTemperature[index1]) * percentage / 100
         return round(temperature * 10) / 10
     }
 
+    fun getOfflineRelativeHumidity(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Int? {
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
+            ?: return null
+        val relativeHumidity =
+            weatherForecast.hourlyRelativeHumidity[index1] + (weatherForecast.hourlyRelativeHumidity[index2] - weatherForecast.hourlyRelativeHumidity[index1]) * percentage / 100
+        return round(relativeHumidity).toInt()
+    }
+
+    fun getOfflineDewPoint(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Double? {
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
+            ?: return null
+        val dewPoint = weatherForecast.hourlyDewPoint[index1] + (weatherForecast.hourlyDewPoint[index2] - weatherForecast.hourlyDewPoint[index1]) * percentage / 100
+        return round(dewPoint * 10) / 10
+    }
+
+    fun getOfflineApparentTemperature(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Double? {
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
+            ?: return null
+        val apparentTemperature = weatherForecast.hourlyApparentTemperature[index1] + (weatherForecast.hourlyApparentTemperature[index2] - weatherForecast.hourlyApparentTemperature[index1]) * percentage / 100
+        return round(apparentTemperature * 10) / 10
+    }
+
     fun getOfflineWeatherCode(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Int? {
-        val (index1, index2, percentage) = getIndicesAndPercentage(weatherForecast.hours, currentTime)
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
             ?: return null
         return weatherForecast.hourlyWeatherCode[index1]
     }
@@ -84,7 +127,10 @@ object OfflineWeather {
         weatherForecast: WeatherForecast,
         currentTime: LocalDateTime
     ): Int? {
-        val (index1, index2, percentage) = getIndicesAndPercentage(weatherForecast.hours, currentTime)
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
             ?: return null
         val precipitationProbability =
             weatherForecast.hourlyPrecipitationProbability[index1] + (weatherForecast.hourlyPrecipitationProbability[index2] - weatherForecast.hourlyPrecipitationProbability[index1]) * percentage / 100
@@ -92,16 +138,27 @@ object OfflineWeather {
     }
 
     fun getOfflineWindSpeed(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Double? {
-        val (index1, index2, percentage) = getIndicesAndPercentage(weatherForecast.hours, currentTime)
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
             ?: return null
-        val windSpeed = weatherForecast.hourlyWindSpeed[index1] + (weatherForecast.hourlyWindSpeed[index2] - weatherForecast.hourlyWindSpeed[index1]) * percentage / 100
+        val windSpeed =
+            weatherForecast.hourlyWindSpeed[index1] + (weatherForecast.hourlyWindSpeed[index2] - weatherForecast.hourlyWindSpeed[index1]) * percentage / 100
         return round(windSpeed * 10) / 10
     }
 
-    fun getOfflineWindDirection(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Int? {
-        val (index1, index2, percentage) = getIndicesAndPercentage(weatherForecast.hours, currentTime)
+    fun getOfflineWindDirection(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Int? {
+        val (index1, index2, percentage) = getIndicesAndPercentage(
+            weatherForecast.hours,
+            currentTime
+        )
             ?: return null
-        val windDirection = weatherForecast.hourlyWindDirection[index1] + (weatherForecast.hourlyWindDirection[index2] - weatherForecast.hourlyWindDirection[index1]) * percentage / 100
+        val windDirection =
+            weatherForecast.hourlyWindDirection[index1] + (weatherForecast.hourlyWindDirection[index2] - weatherForecast.hourlyWindDirection[index1]) * percentage / 100
         return round(windDirection).toInt()
     }
 }

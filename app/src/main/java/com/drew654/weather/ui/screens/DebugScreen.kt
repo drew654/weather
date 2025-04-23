@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.drew654.weather.data.jsonToWeatherForecast
 import com.drew654.weather.ui.components.DateInputField
 import com.drew654.weather.ui.components.TimeInputField
+import com.drew654.weather.utils.OfflineWeather.getOfflineApparentTemperature
+import com.drew654.weather.utils.OfflineWeather.getOfflineDewPoint
 import com.drew654.weather.utils.OfflineWeather.getOfflinePrecipitationProbability
+import com.drew654.weather.utils.OfflineWeather.getOfflineRelativeHumidity
 import com.drew654.weather.utils.OfflineWeather.getOfflineTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflineWeatherCode
 import com.drew654.weather.utils.OfflineWeather.getOfflineWindDirection
@@ -84,6 +87,45 @@ fun DebugScreen() {
                     Text(
                         text = "Temperature: ${
                             getOfflineTemperature(
+                                weatherForecast,
+                                LocalDateTime.ofInstant(
+                                    Instant.ofEpochMilli(dateInMillis.longValue),
+                                    ZoneId.systemDefault()
+                                )
+                                    .withHour(timePickerState.hour)
+                                    .withMinute(timePickerState.minute)
+                            )
+                        }"
+                    )
+                    Text(
+                        text = "Relative Humidity: ${
+                            getOfflineRelativeHumidity(
+                                weatherForecast,
+                                LocalDateTime.ofInstant(
+                                    Instant.ofEpochMilli(dateInMillis.longValue),
+                                    ZoneId.systemDefault()
+                                )
+                                    .withHour(timePickerState.hour)
+                                    .withMinute(timePickerState.minute)
+                            )
+                        }"
+                    )
+                    Text(
+                        text = "Dew Point: ${
+                            getOfflineDewPoint(
+                                weatherForecast,
+                                LocalDateTime.ofInstant(
+                                    Instant.ofEpochMilli(dateInMillis.longValue),
+                                    ZoneId.systemDefault()
+                                )
+                                    .withHour(timePickerState.hour)
+                                    .withMinute(timePickerState.minute)
+                            )
+                        }"
+                    )
+                    Text(
+                        text = "Apparent Temperature: ${
+                            getOfflineApparentTemperature(
                                 weatherForecast,
                                 LocalDateTime.ofInstant(
                                     Instant.ofEpochMilli(dateInMillis.longValue),

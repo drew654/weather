@@ -7,15 +7,15 @@ import java.time.LocalDateTime
 import kotlin.math.round
 
 object OfflineWeather {
-    fun saveWeatherForecastJson(context: Context, json: String) {
-        context.openFileOutput("weather_forecast.json", Context.MODE_PRIVATE).use {
+    fun saveWeatherForecastJson(context: Context, json: String, fileName: String) {
+        context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
             it.write(json.toByteArray())
         }
     }
 
-    fun loadWeatherForecastJson(context: Context): String? {
+    fun loadWeatherForecastJson(context: Context, fileName: String): String? {
         return try {
-            context.openFileInput("weather_forecast.json").bufferedReader().use {
+            context.openFileInput(fileName).bufferedReader().use {
                 it.readText()
             }
         } catch (e: IOException) {

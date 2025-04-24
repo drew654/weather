@@ -384,7 +384,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         put("daily", dailyForecastJson)
                     }
                     _weatherForecast.value = jsonToWeatherForecast(weatherForecastJson)
-                    saveWeatherForecastJson(getApplication(), weatherForecastJson.toString())
+                    saveWeatherForecastJson(
+                        getApplication(),
+                        weatherForecastJson.toString(),
+                        "${place.name}.json"
+                    )
                 }
             }
         }

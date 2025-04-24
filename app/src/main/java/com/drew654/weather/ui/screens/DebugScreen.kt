@@ -13,7 +13,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -42,7 +44,11 @@ import java.time.format.DateTimeFormatter
 fun DebugScreen() {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val weatherForecastJson = loadWeatherForecastJson(context = context)
+    val fileName = remember { mutableStateOf("") }
+    val jsonFileNames =
+        context.filesDir.listFiles()?.map { it.name }?.filter { it.endsWith(".json") }
+            ?: emptyList()
+    val weatherForecastJson = loadWeatherForecastJson(context = context, fileName = fileName.value)
     val weatherForecast = weatherForecastJson?.let { json ->
         jsonToWeatherForecast(Json.decodeFromString(json))
     }
@@ -53,6 +59,10 @@ fun DebugScreen() {
         is24Hour = is24HourFormat(context)
     )
     val dateInMillis = remember { mutableLongStateOf(System.currentTimeMillis()) }
+
+    LaunchedEffect(jsonFileNames) {
+        fileName.value = jsonFileNames.firstOrNull() ?: ""
+    }
 
     Box(
         modifier = Modifier
@@ -72,6 +82,7 @@ fun DebugScreen() {
         ) {
             if (weatherForecast != null) {
                 items(1) {
+                    Text(text = fileName.value)
                     DateInputField(dateInMillis = dateInMillis)
                     TimeInputField(
                         timePickerState = timePickerState

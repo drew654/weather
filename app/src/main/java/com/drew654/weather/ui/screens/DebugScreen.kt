@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.drew654.weather.data.jsonToWeatherForecast
 import com.drew654.weather.ui.components.DateInputField
+import com.drew654.weather.ui.components.DropdownMenu
 import com.drew654.weather.ui.components.TimeInputField
 import com.drew654.weather.utils.OfflineWeather.getOfflineApparentTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflineDewPoint
@@ -48,6 +49,7 @@ fun DebugScreen() {
     val jsonFileNames =
         context.filesDir.listFiles()?.map { it.name }?.filter { it.endsWith(".json") }
             ?: emptyList()
+    val dropdownMenuIsExpanded = remember { mutableStateOf(false) }
     val weatherForecastJson = loadWeatherForecastJson(context = context, fileName = fileName.value)
     val weatherForecast = weatherForecastJson?.let { json ->
         jsonToWeatherForecast(Json.decodeFromString(json))
@@ -81,8 +83,18 @@ fun DebugScreen() {
                 .padding(all = 16.dp)
         ) {
             if (weatherForecast != null) {
+                item {
+                    DropdownMenu(
+                        selectedValue = fileName.value,
+                        options = jsonFileNames,
+                        label = "Select a file",
+                        onValueChange = {
+                            fileName.value = it
+                            dropdownMenuIsExpanded.value = false
+                        }
+                    )
+                }
                 items(1) {
-                    Text(text = fileName.value)
                     DateInputField(dateInMillis = dateInMillis)
                     TimeInputField(
                         timePickerState = timePickerState

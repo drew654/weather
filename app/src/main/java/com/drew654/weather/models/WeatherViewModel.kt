@@ -23,6 +23,7 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
@@ -36,6 +37,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -46,6 +48,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 import kotlin.collections.plus
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -68,6 +71,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     private val _fetchedPlaces = MutableStateFlow<List<Place>>(emptyList())
     val fetchedPlaces: StateFlow<List<Place>> = _fetchedPlaces.asStateFlow()
+
+    private val _isTimedOut = MutableStateFlow(false)
+    val isTimedOut: StateFlow<Boolean> = _isTimedOut.asStateFlow()
 
     private val _weatherForecast = MutableStateFlow<WeatherForecast?>(null)
     val weatherForecast: StateFlow<WeatherForecast?> = _weatherForecast.asStateFlow()
@@ -290,108 +296,125 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         return request
     }
 
+    private var fetchWeatherJob: Job? = null
+
     private fun fetchWeatherForecast(place: Place) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val client = OkHttpClient()
-                val selectedTemperatureUnit = temperatureUnitFlow.first()
-                val selectedWindSpeedUnit = windSpeedUnitFlow.first()
-                val selectedPrecipitationUnit = precipitationUnitFlow.first()
+        fetchWeatherJob?.cancel()
+        fetchWeatherJob = viewModelScope.launch {
+            _isTimedOut.value = false
+            try {
+                withTimeout(30_000) {
+                    withContext(Dispatchers.IO) {
+                        val client = OkHttpClient.Builder()
+                            .connectTimeout(30, TimeUnit.SECONDS)
+                            .readTimeout(30, TimeUnit.SECONDS)
+                            .writeTimeout(30, TimeUnit.SECONDS)
+                            .build()
+                        val selectedTemperatureUnit = temperatureUnitFlow.first()
+                        val selectedWindSpeedUnit = windSpeedUnitFlow.first()
+                        val selectedPrecipitationUnit = precipitationUnitFlow.first()
 
-                val currentWeatherDeferred = async {
-                    fetchWeatherJson(
-                        client,
-                        buildWeatherRequest(
-                            place,
-                            WeatherDataType.CURRENT,
-                            listOf(
-                                "temperature_2m",
-                                "relative_humidity_2m",
-                                "dew_point_2m",
-                                "apparent_temperature",
-                                "is_day",
-                                "precipitation",
-                                "rain",
-                                "showers",
-                                "snowfall",
-                                "weather_code",
-                                "wind_speed_10m",
-                                "wind_direction_10m"
-                            ),
-                            emptyList(),
-                            selectedTemperatureUnit,
-                            selectedWindSpeedUnit,
-                            selectedPrecipitationUnit
-                        )
-                    )?.jsonObject["current"]?.jsonObject
-                }
+                        val currentWeatherDeferred = async {
+                            fetchWeatherJson(
+                                client,
+                                buildWeatherRequest(
+                                    place,
+                                    WeatherDataType.CURRENT,
+                                    listOf(
+                                        "temperature_2m",
+                                        "relative_humidity_2m",
+                                        "dew_point_2m",
+                                        "apparent_temperature",
+                                        "is_day",
+                                        "precipitation",
+                                        "rain",
+                                        "showers",
+                                        "snowfall",
+                                        "weather_code",
+                                        "wind_speed_10m",
+                                        "wind_direction_10m"
+                                    ),
+                                    emptyList(),
+                                    selectedTemperatureUnit,
+                                    selectedWindSpeedUnit,
+                                    selectedPrecipitationUnit
+                                )
+                            )?.jsonObject["current"]?.jsonObject
+                        }
 
-                val hourlyForecastDeferred = async {
-                    fetchWeatherJson(
-                        client,
-                        buildWeatherRequest(
-                            place,
-                            WeatherDataType.HOURLY,
-                            listOf(
-                                "temperature_2m",
-                                "precipitation_probability",
-                                "relative_humidity_2m",
-                                "dew_point_2m",
-                                "apparent_temperature",
-                                "weather_code",
-                                "wind_speed_10m",
-                                "wind_direction_10m"
-                            ),
-                            listOf("forecast_days=15", "timezone=auto"),
-                            selectedTemperatureUnit,
-                            selectedWindSpeedUnit
-                        )
-                    )?.jsonObject["hourly"]?.jsonObject
-                }
+                        val hourlyForecastDeferred = async {
+                            fetchWeatherJson(
+                                client,
+                                buildWeatherRequest(
+                                    place,
+                                    WeatherDataType.HOURLY,
+                                    listOf(
+                                        "temperature_2m",
+                                        "precipitation_probability",
+                                        "relative_humidity_2m",
+                                        "dew_point_2m",
+                                        "apparent_temperature",
+                                        "weather_code",
+                                        "wind_speed_10m",
+                                        "wind_direction_10m"
+                                    ),
+                                    listOf("forecast_days=15", "timezone=auto"),
+                                    selectedTemperatureUnit,
+                                    selectedWindSpeedUnit
+                                )
+                            )?.jsonObject["hourly"]?.jsonObject
+                        }
 
-                val dailyForecastDeferred = async {
-                    fetchWeatherJson(
-                        client,
-                        buildWeatherRequest(
-                            place,
-                            WeatherDataType.DAILY,
-                            listOf(
-                                "temperature_2m_max",
-                                "temperature_2m_min",
-                                "sunrise",
-                                "sunset",
-                                "weather_code",
-                                "precipitation_probability_max",
-                                "wind_speed_10m_max",
-                                "wind_direction_10m_dominant",
-                                "uv_index_max"
-                            ),
-                            listOf("forecast_days=15", "timezone=auto"),
-                            selectedTemperatureUnit,
-                            selectedWindSpeedUnit,
-                            selectedPrecipitationUnit
-                        )
-                    )?.jsonObject["daily"]?.jsonObject
-                }
+                        val dailyForecastDeferred = async {
+                            fetchWeatherJson(
+                                client,
+                                buildWeatherRequest(
+                                    place,
+                                    WeatherDataType.DAILY,
+                                    listOf(
+                                        "temperature_2m_max",
+                                        "temperature_2m_min",
+                                        "sunrise",
+                                        "sunset",
+                                        "weather_code",
+                                        "precipitation_probability_max",
+                                        "wind_speed_10m_max",
+                                        "wind_direction_10m_dominant",
+                                        "uv_index_max"
+                                    ),
+                                    listOf("forecast_days=15", "timezone=auto"),
+                                    selectedTemperatureUnit,
+                                    selectedWindSpeedUnit,
+                                    selectedPrecipitationUnit
+                                )
+                            )?.jsonObject["daily"]?.jsonObject
+                        }
 
-                val (currentWeatherJson, hourlyForecastJson, dailyForecastJson) =
-                    awaitAll(currentWeatherDeferred, hourlyForecastDeferred, dailyForecastDeferred)
+                        val (currentWeatherJson, hourlyForecastJson, dailyForecastJson) =
+                            awaitAll(currentWeatherDeferred, hourlyForecastDeferred, dailyForecastDeferred)
 
-                if (currentWeatherJson != null && hourlyForecastJson != null && dailyForecastJson != null) {
-                    val weatherForecastJson = buildJsonObject {
-                        put("current", currentWeatherJson)
-                        put("hourly", hourlyForecastJson)
-                        put("daily", dailyForecastJson)
+                        if (currentWeatherJson != null && hourlyForecastJson != null && dailyForecastJson != null) {
+                            val weatherForecastJson = buildJsonObject {
+                                put("current", currentWeatherJson)
+                                put("hourly", hourlyForecastJson)
+                                put("daily", dailyForecastJson)
+                            }
+                            _weatherForecast.value = jsonToWeatherForecast(weatherForecastJson)
+                            if (place.name != "Current Location") {
+                                saveWeatherForecastJson(
+                                    getApplication(),
+                                    weatherForecastJson.toString(),
+                                    "${place.name}.json"
+                                )
+                            }
+                        }
                     }
-                    _weatherForecast.value = jsonToWeatherForecast(weatherForecastJson)
-                    if (place.name != "Current Location") {
-                        saveWeatherForecastJson(
-                            getApplication(),
-                            weatherForecastJson.toString(),
-                            "${place.name}.json"
-                        )
-                    }
                 }
+            } catch (e: TimeoutCancellationException) {
+                _isTimedOut.value = true
+                e.printStackTrace()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }

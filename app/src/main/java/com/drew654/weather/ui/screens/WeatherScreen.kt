@@ -1,7 +1,10 @@
 package com.drew654.weather.ui.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -12,11 +15,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -39,6 +44,7 @@ fun WeatherScreen(
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val hourlyListState = rememberLazyListState()
     val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
+    val isTimedOut = weatherViewModel.isTimedOut.collectAsState()
     val pagerState = rememberPagerState(
         initialPage = currentWeatherPage.value,
         pageCount = { 3 }
@@ -112,9 +118,30 @@ fun WeatherScreen(
             }
         }
     ) { innerPadding ->
-        if (weatherForecast.value == null) {
+        if (isTimedOut.value) {
             Box(
-                contentAlignment = androidx.compose.ui.Alignment.Center,
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Request has timed out")
+                    Spacer(modifier = Modifier.height(64.dp))
+                    OutlinedButton(
+                        onClick = {
+                            weatherViewModel.fetchWeather()
+                        }
+                    ) {
+                        Text(text = "Retry")
+                    }
+                }
+            }
+        } else if (weatherForecast.value == null) {
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()

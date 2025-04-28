@@ -37,9 +37,7 @@ import com.drew654.weather.utils.OfflineWeather.getOfflineWindDirection
 import com.drew654.weather.utils.OfflineWeather.getOfflineWindSpeed
 import com.drew654.weather.utils.OfflineWeather.loadWeatherForecastJson
 import kotlinx.serialization.json.Json
-import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +61,7 @@ fun DebugScreen() {
         is24Hour = is24HourFormat(context)
     )
     val dateInMillis = remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val currentTime = LocalDateTime.now()
 
     LaunchedEffect(jsonFileNames) {
         fileName.value = jsonFileNames.firstOrNull() ?: ""
@@ -113,11 +112,7 @@ fun DebugScreen() {
                         text = "Temperature: ${
                             getOfflineTemperature(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -126,11 +121,7 @@ fun DebugScreen() {
                         text = "Relative Humidity: ${
                             getOfflineRelativeHumidity(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -139,11 +130,7 @@ fun DebugScreen() {
                         text = "Dew Point: ${
                             getOfflineDewPoint(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -152,11 +139,7 @@ fun DebugScreen() {
                         text = "Apparent Temperature: ${
                             getOfflineApparentTemperature(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -165,11 +148,7 @@ fun DebugScreen() {
                         text = "Weather Code: ${
                             getOfflineWeatherCode(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -178,11 +157,7 @@ fun DebugScreen() {
                         text = "Precipitation Probability: ${
                             getOfflinePrecipitationProbability(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -191,11 +166,7 @@ fun DebugScreen() {
                         text = "Wind Speed: ${
                             getOfflineWindSpeed(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -204,11 +175,7 @@ fun DebugScreen() {
                         text = "Wind Direction: ${
                             getOfflineWindDirection(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -217,11 +184,7 @@ fun DebugScreen() {
                         text = "Max Temperature: ${
                             getOfflineMaxTemperature(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"
@@ -230,11 +193,7 @@ fun DebugScreen() {
                         text = "Min Temperature: ${
                             getOfflineMinTemperature(
                                 weatherForecast,
-                                LocalDateTime.ofInstant(
-                                    Instant.ofEpochMilli(dateInMillis.longValue),
-                                    ZoneId.systemDefault()
-                                )
-                                    .withHour(timePickerState.hour)
+                                currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)
                             )
                         }"

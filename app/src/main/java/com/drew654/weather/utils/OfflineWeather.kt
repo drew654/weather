@@ -100,26 +100,28 @@ object OfflineWeather {
             currentTime
         )
             ?: return null
-        val dewPoint = weatherForecast.hourlyDewPoint[index1] + (weatherForecast.hourlyDewPoint[index2] - weatherForecast.hourlyDewPoint[index1]) * percentage / 100
+        val dewPoint =
+            weatherForecast.hourlyDewPoint[index1] + (weatherForecast.hourlyDewPoint[index2] - weatherForecast.hourlyDewPoint[index1]) * percentage / 100
         return round(dewPoint * 10) / 10
     }
 
-    fun getOfflineApparentTemperature(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Double? {
+    fun getOfflineApparentTemperature(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Double? {
         val (index1, index2, percentage) = getIndicesAndPercentage(
             weatherForecast.hours,
             currentTime
         )
             ?: return null
-        val apparentTemperature = weatherForecast.hourlyApparentTemperature[index1] + (weatherForecast.hourlyApparentTemperature[index2] - weatherForecast.hourlyApparentTemperature[index1]) * percentage / 100
+        val apparentTemperature =
+            weatherForecast.hourlyApparentTemperature[index1] + (weatherForecast.hourlyApparentTemperature[index2] - weatherForecast.hourlyApparentTemperature[index1]) * percentage / 100
         return round(apparentTemperature * 10) / 10
     }
 
     fun getOfflineWeatherCode(weatherForecast: WeatherForecast, currentTime: LocalDateTime): Int? {
-        val (index1, index2, percentage) = getIndicesAndPercentage(
-            weatherForecast.hours,
-            currentTime
-        )
-            ?: return null
+        val index1 =
+            getIndicesAndPercentage(weatherForecast.hours, currentTime)?.first ?: return null
         return weatherForecast.hourlyWeatherCode[index1]
     }
 

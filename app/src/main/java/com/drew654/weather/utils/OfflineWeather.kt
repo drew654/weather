@@ -161,4 +161,22 @@ object OfflineWeather {
             weatherForecast.hourlyWindDirection[index1] + (weatherForecast.hourlyWindDirection[index2] - weatherForecast.hourlyWindDirection[index1]) * percentage / 100
         return round(windDirection).toInt()
     }
+
+    fun getOfflineMaxTemperature(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Double? {
+        val day = currentTime.toLocalDate()
+        val index = weatherForecast.days.indexOf(day)
+        return weatherForecast.dailyMaxTemperature[index]
+    }
+
+    fun getOfflineMinTemperature(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Double? {
+        val day = currentTime.toLocalDate()
+        val index = weatherForecast.days.indexOf(day)
+        return weatherForecast.dailyMinTemperature[index]
+    }
 }

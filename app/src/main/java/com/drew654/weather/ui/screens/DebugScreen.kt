@@ -27,6 +27,8 @@ import com.drew654.weather.ui.components.DropdownMenu
 import com.drew654.weather.ui.components.TimeInputField
 import com.drew654.weather.utils.OfflineWeather.getOfflineApparentTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflineDewPoint
+import com.drew654.weather.utils.OfflineWeather.getOfflineMaxTemperature
+import com.drew654.weather.utils.OfflineWeather.getOfflineMinTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflinePrecipitationProbability
 import com.drew654.weather.utils.OfflineWeather.getOfflineRelativeHumidity
 import com.drew654.weather.utils.OfflineWeather.getOfflineTemperature
@@ -201,6 +203,32 @@ fun DebugScreen() {
                     Text(
                         text = "Wind Direction: ${
                             getOfflineWindDirection(
+                                weatherForecast,
+                                LocalDateTime.ofInstant(
+                                    Instant.ofEpochMilli(dateInMillis.longValue),
+                                    ZoneId.systemDefault()
+                                )
+                                    .withHour(timePickerState.hour)
+                                    .withMinute(timePickerState.minute)
+                            )
+                        }"
+                    )
+                    Text(
+                        text = "Max Temperature: ${
+                            getOfflineMaxTemperature(
+                                weatherForecast,
+                                LocalDateTime.ofInstant(
+                                    Instant.ofEpochMilli(dateInMillis.longValue),
+                                    ZoneId.systemDefault()
+                                )
+                                    .withHour(timePickerState.hour)
+                                    .withMinute(timePickerState.minute)
+                            )
+                        }"
+                    )
+                    Text(
+                        text = "Min Temperature: ${
+                            getOfflineMinTemperature(
                                 weatherForecast,
                                 LocalDateTime.ofInstant(
                                     Instant.ofEpochMilli(dateInMillis.longValue),

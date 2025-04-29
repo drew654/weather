@@ -75,6 +75,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _isTimedOut = MutableStateFlow(false)
     val isTimedOut: StateFlow<Boolean> = _isTimedOut.asStateFlow()
 
+    private val _isOfflineMode = MutableStateFlow(false)
+    val isOfflineMode: StateFlow<Boolean> = _isOfflineMode.asStateFlow()
+
     private val _weatherForecast = MutableStateFlow<WeatherForecast?>(null)
     val weatherForecast: StateFlow<WeatherForecast?> = _weatherForecast.asStateFlow()
 
@@ -433,6 +436,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             e.printStackTrace()
             null
         }
+    }
+
+    fun setIsOfflineMode(isOfflineMode: Boolean) {
+        _isOfflineMode.value = isOfflineMode
     }
 
     fun setSelectedDay(day: Int) {

@@ -126,16 +126,25 @@ fun WeatherScreen(
                     .fillMaxSize()
             ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(vertical = 64.dp)
                 ) {
                     Text(text = "Request has timed out")
-                    Spacer(modifier = Modifier.height(64.dp))
+                    Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
                         onClick = {
                             weatherViewModel.fetchWeather()
                         }
                     ) {
                         Text(text = "Retry")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedButton(
+                        onClick = {
+                            weatherViewModel.setIsOfflineMode(true)
+                        }
+                    ) {
+                        Text(text = "View weather offline")
                     }
                 }
             }

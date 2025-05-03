@@ -3,6 +3,7 @@ package com.drew654.weather.utils
 import android.content.Context
 import com.drew654.weather.models.WeatherForecast
 import java.io.IOException
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.math.round
 
@@ -180,5 +181,14 @@ object OfflineWeather {
         val day = currentTime.toLocalDate()
         val index = weatherForecast.days.indexOf(day)
         return weatherForecast.dailyMinTemperature[index]
+    }
+
+    fun getOfflineWeatherDays(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): List<LocalDate> {
+        val day = currentTime.toLocalDate()
+        val index = weatherForecast.days.indexOf(day)
+        return weatherForecast.days.subList(index, weatherForecast.days.size)
     }
 }

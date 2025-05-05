@@ -1,5 +1,6 @@
 package com.drew654.weather.ui.screens.dailyForecast
 
+import android.text.format.DateFormat.is24HourFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,18 +30,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.drew654.weather.R
+import com.drew654.weather.models.DayForecast
 import com.drew654.weather.models.MeasurementUnit
 import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.calculateStartIndexForDay
 import com.drew654.weather.utils.degToHdg
+import com.drew654.weather.utils.formatTime
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.showDouble
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import java.time.format.TextStyle
-import java.util.Locale
 
 @Composable
 fun DailyForecastScreen(
@@ -69,6 +70,22 @@ fun DailyForecastScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                 }
                 itemsIndexed(weatherForecast.value?.days ?: listOf()) { index, _ ->
+                    val dayForecast = DayForecast(
+                        date = weatherForecast.value?.days?.get(index)!!,
+                        maxTemperature = weatherForecast.value?.dailyMaxTemperature?.get(index)!!,
+                        minTemperature = weatherForecast.value?.dailyMinTemperature?.get(index)!!,
+                        sunrise = weatherForecast.value?.dailySunrise?.get(index)!!,
+                        sunset = weatherForecast.value?.dailySunset?.get(index)!!,
+                        weatherCode = weatherForecast.value?.dailyWeatherCode?.get(index)!!,
+                        precipitationProbabilityMax = weatherForecast.value?.dailyPrecipitationProbabilityMax?.get(
+                            index
+                        )!!,
+                        windSpeedMax = weatherForecast.value?.dailyWindSpeedMax?.get(index)!!,
+                        windDirectionDominant = weatherForecast.value?.dailyWindDirectionDominant?.get(
+                            index
+                        )!!,
+                        uvIndexMax = weatherForecast.value?.dailyUvIndexMax?.get(index)!!
+                    )
                     DailyForecastTile(
                         weatherViewModel = weatherViewModel,
                         context = context,
@@ -78,21 +95,7 @@ fun DailyForecastScreen(
                         isSelected = {
                             selectedDay.value == index
                         },
-                        dayOfWeek = weatherForecast.value?.days?.get(index)?.dayOfWeek?.getDisplayName(
-                            TextStyle.SHORT,
-                            Locale.getDefault()
-                        ).toString(),
-                        dayOfMonth = weatherForecast.value?.days?.get(
-                            index
-                        )?.dayOfMonth ?: 0,
-                        maxTemperature = weatherForecast.value?.dailyMaxTemperature?.get(index)
-                            ?: 0.0,
-                        minTemperature = weatherForecast.value?.dailyMinTemperature?.get(index)
-                            ?: 0.0,
-                        weatherCode = weatherForecast.value?.dailyWeatherCode?.get(index) ?: 0,
-                        precipitationProbability = weatherForecast.value?.dailyPrecipitationProbabilityMax?.get(
-                            index
-                        ) ?: 0
+                        dayForecast = dayForecast
                     )
                 }
                 items(1) {
@@ -112,7 +115,13 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${showDouble(weatherForecast.value?.dailyWindSpeedMax?.get(selectedDay.value)!!, showDecimal.value)} ${
+                            text = "${
+                                showDouble(
+                                    weatherForecast.value?.dailyWindSpeedMax?.get(
+                                        selectedDay.value
+                                    )!!, showDecimal.value
+                                )
+                            } ${
                                 getDisplayNameFromDataName(windUnit.value)
                             } ${
                                 degToHdg(
@@ -172,7 +181,11 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = showDouble(weatherForecast.value?.dailyUvIndexMax?.get(selectedDay.value)!!, showDecimal.value),
+                            text = showDouble(
+                                weatherForecast.value?.dailyUvIndexMax?.get(
+                                    selectedDay.value
+                                )!!, showDecimal.value
+                            ),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -211,9 +224,11 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${
-                                weatherForecast.value?.dailySunrise?.get(selectedDay.value)?.hour
-                            }:${weatherForecast.value?.dailySunrise?.get(selectedDay.value)?.minute}",
+                            text = formatTime(
+                                localDateTime = weatherForecast.value?.dailySunrise?.get(
+                                    selectedDay.value
+                                ), is24HourFormat = is24HourFormat(context)
+                            ),
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -228,9 +243,11 @@ fun DailyForecastScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "${
-                                weatherForecast.value?.dailySunset?.get(selectedDay.value)?.hour
-                            }:${weatherForecast.value?.dailySunset?.get(selectedDay.value)?.minute}",
+                            text = formatTime(
+                                localDateTime = weatherForecast.value?.dailySunset?.get(
+                                    selectedDay.value
+                                ), is24HourFormat = is24HourFormat(context)
+                            ),
                             fontWeight = FontWeight.Bold
                         )
                     }

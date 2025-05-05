@@ -20,10 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.drew654.weather.R
+import com.drew654.weather.models.DayForecast
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
 import com.drew654.weather.utils.showDouble
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun DailyForecastTile(
@@ -31,14 +34,13 @@ fun DailyForecastTile(
     context: Context,
     onClick: () -> Unit,
     isSelected: () -> Boolean,
-    dayOfWeek: String,
-    dayOfMonth: Int,
-    maxTemperature: Double,
-    minTemperature: Double,
-    weatherCode: Int,
-    precipitationProbability: Int,
+    dayForecast: DayForecast
 ) {
     val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+    val dayOfWeek = dayForecast.date.dayOfWeek?.getDisplayName(
+        TextStyle.SHORT,
+        Locale.getDefault()
+    ).toString()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -49,21 +51,21 @@ fun DailyForecastTile(
             .padding(16.dp)
     ) {
         Text(
-            text = "$dayOfWeek $dayOfMonth"
+            text = "$dayOfWeek ${dayForecast.date.dayOfMonth}"
         )
         Text(
-            text = "${showDouble(maxTemperature, showDecimal.value)}°",
+            text = "${showDouble(dayForecast.maxTemperature, showDecimal.value)}°",
             fontWeight = FontWeight.Bold
         )
-        Text(text = "${showDouble(minTemperature, showDecimal.value)}°")
+        Text(text = "${showDouble(dayForecast.minTemperature, showDecimal.value)}°")
         AsyncImage(
             model = getWeatherIconUrl(
-                weatherCode = weatherCode,
+                weatherCode = dayForecast.weatherCode,
                 isDay = true
             ),
             contentDescription = getWeatherDescription(
                 context = context,
-                weatherCode = weatherCode,
+                weatherCode = dayForecast.weatherCode,
                 isDay = true
             ),
             modifier = Modifier.size(48.dp)
@@ -80,7 +82,7 @@ fun DailyForecastTile(
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = "$precipitationProbability%"
+                text = "${dayForecast.precipitationProbabilityMax}%"
             )
         }
     }

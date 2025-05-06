@@ -33,6 +33,16 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val place = weatherViewModel.selectedPlace.collectAsState()
     val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
     val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+    val currentTemperature = weatherForecast.value?.currentTemperature!!
+    val currentWeatherCode = weatherForecast.value?.currentWeatherCode!!
+    val currentIsDay = weatherForecast.value?.currentIsDay!!
+    val currentApparentTemperature = weatherForecast.value?.currentApparentTemperature!!
+    val maxTemperature = weatherForecast.value?.dailyMaxTemperature?.get(0)!!
+    val minTemperature = weatherForecast.value?.dailyMinTemperature?.get(0)!!
+    val currentWindSpeed = weatherForecast.value?.currentWindSpeed!!
+    val currentWindDirection = weatherForecast.value?.currentWindDirection!!
+    val currentRelativeHumidity = weatherForecast.value?.currentRelativeHumidity!!
+    val currentDewPoint = weatherForecast.value?.currentDewPoint!!
 
     Box(
         modifier = Modifier
@@ -47,18 +57,18 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                 Row {
                     Row {
                         Text(
-                            text = "${showDouble(weatherForecast.value?.currentTemperature!!, showDecimal.value)}°",
+                            text = "${showDouble(currentTemperature, showDecimal.value)}°",
                             fontSize = 48.sp
                         )
                         AsyncImage(
                             model = getWeatherIconUrl(
-                                weatherCode = weatherForecast.value?.currentWeatherCode ?: 0,
-                                isDay = weatherForecast.value?.currentIsDay!!
+                                weatherCode = currentWeatherCode,
+                                isDay = currentIsDay
                             ),
                             contentDescription = getWeatherDescription(
                                 context = context,
-                                weatherCode = weatherForecast.value?.currentWeatherCode!!,
-                                isDay = weatherForecast.value?.currentIsDay!!
+                                weatherCode = currentWeatherCode,
+                                isDay = currentIsDay
                             ),
                             modifier = Modifier
                                 .size(64.dp)
@@ -71,33 +81,43 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                             text =
                             getWeatherDescription(
                                 context = context,
-                                weatherCode = weatherForecast.value?.currentWeatherCode!!,
-                                isDay = weatherForecast.value?.currentIsDay!!
+                                weatherCode = currentWeatherCode,
+                                isDay = currentIsDay
                             ),
                             modifier = Modifier.align(Alignment.End)
                         )
-                        Text(text = "Feels like ${showDouble(weatherForecast.value?.currentApparentTemperature!!, showDecimal.value)}°")
+                        Text(
+                            text = "Feels like ${
+                                showDouble(
+                                    currentApparentTemperature,
+                                    showDecimal.value
+                                )
+                            }°"
+                        )
                     }
                 }
                 Text(
-                    text = "High: ${showDouble(weatherForecast.value?.dailyMaxTemperature?.get(0)!!, showDecimal.value)}° • Low: ${
-                        showDouble(weatherForecast.value?.dailyMinTemperature?.get(0)!!, showDecimal.value)
-                    }°"
+                    text = "High: ${
+                        showDouble(
+                            maxTemperature,
+                            showDecimal.value
+                        )
+                    }° • Low: ${showDouble(minTemperature, showDecimal.value)}°"
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     WindTile(
-                        windSpeed = weatherForecast.value?.currentWindSpeed!!,
-                        windDirection = weatherForecast.value?.currentWindDirection!!,
+                        windSpeed = currentWindSpeed,
+                        windDirection = currentWindDirection,
                         weatherViewModel = weatherViewModel
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     HumidityTile(
                         weatherViewModel = weatherViewModel,
-                        humidity = weatherForecast.value?.currentRelativeHumidity!!,
-                        dewPoint = weatherForecast.value?.currentDewPoint!!,
+                        humidity = currentRelativeHumidity,
+                        dewPoint = currentDewPoint,
                     )
                 }
             }

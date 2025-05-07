@@ -30,6 +30,7 @@ import com.drew654.weather.ui.components.DropdownMenu
 import com.drew654.weather.ui.components.TimeInputField
 import com.drew654.weather.utils.OfflineWeather.getOfflineApparentTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflineDewPoint
+import com.drew654.weather.utils.OfflineWeather.getOfflineIsDay
 import com.drew654.weather.utils.OfflineWeather.getOfflineMaxTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflineMinTemperature
 import com.drew654.weather.utils.OfflineWeather.getOfflinePrecipitationProbability
@@ -198,6 +199,15 @@ fun DebugScreen() {
                     Text(
                         text = "Min Temperature: ${
                             getOfflineMinTemperature(
+                                weatherForecast,
+                                currentTime.withHour(timePickerState.hour)
+                                    .withMinute(timePickerState.minute)
+                            )
+                        }"
+                    )
+                    Text(
+                        text = "Is Day: ${
+                            getOfflineIsDay(
                                 weatherForecast,
                                 currentTime.withHour(timePickerState.hour)
                                     .withMinute(timePickerState.minute)

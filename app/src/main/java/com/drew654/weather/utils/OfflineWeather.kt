@@ -191,4 +191,15 @@ object OfflineWeather {
         val index = weatherForecast.days.indexOf(day)
         return weatherForecast.days.subList(index, weatherForecast.days.size)
     }
+
+    fun getOfflineIsDay(
+        weatherForecast: WeatherForecast,
+        currentTime: LocalDateTime
+    ): Boolean? {
+        val day = currentTime.toLocalDate()
+        val index = weatherForecast.days.indexOf(day)
+        return if (index == -1) null else {
+            weatherForecast.dailySunrise[index] < currentTime && currentTime < weatherForecast.dailySunset[index]
+        }
+    }
 }

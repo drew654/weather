@@ -71,7 +71,7 @@ fun LocationSearchBar(
             placeholder = {
                 Text(
                     text = if (isSearching.value) "Search for a location"
-                    else selectedPlace.value?.name ?: "",
+                    else selectedPlace.value?.name ?: "Search for a location",
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )

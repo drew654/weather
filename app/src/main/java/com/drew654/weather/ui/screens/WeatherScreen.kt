@@ -45,6 +45,7 @@ fun WeatherScreen(
     val hourlyListState = rememberLazyListState()
     val weatherForecast = weatherViewModel.weatherForecast.collectAsState()
     val isTimedOut = weatherViewModel.isTimedOut.collectAsState()
+    val selectedPlace = weatherViewModel.selectedPlace.collectAsState()
     val pagerState = rememberPagerState(
         initialPage = currentWeatherPage.value,
         pageCount = { 3 }
@@ -147,6 +148,17 @@ fun WeatherScreen(
                         Text(text = "View weather offline")
                     }
                 }
+            }
+        } else if (selectedPlace.value == null) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+            ) {
+                Text(
+                    text = "Please select a location",
+                )
             }
         } else if (weatherForecast.value == null) {
             Box(

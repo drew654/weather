@@ -80,7 +80,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.Debug.route) {
-                            DebugScreen()
+                            DebugScreen(weatherViewModel = weatherViewModel)
                         }
                     }
                     if (!weatherViewModel.hasLocationPermission()) {

@@ -21,7 +21,6 @@ import com.drew654.weather.utils.OfflineWeather.saveWeatherForecastJson
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -162,25 +161,30 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private var fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(application)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun getLastKnownLocation(): Location? =
-        suspendCancellableCoroutine { continuation ->
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    continuation.resume(location)
-                }
-                .addOnFailureListener { e: Exception ->
-                    continuation.resumeWithException(e)
-                }
-                .addOnCanceledListener {
-                    continuation.cancel()
-                }
-        }
 
     private suspend fun getCurrentLocation(): Location? {
-        if (hasLocationPermission()) {
+        val context = getApplication<Application>().applicationContext
+        if (
+            ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            || ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             try {
-                return getLastKnownLocation()
+                return suspendCancellableCoroutine { continuation ->
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            continuation.resume(location)
+                        }
+                        .addOnFailureListener { e: Exception ->
+                            continuation.resumeWithException(e)
+                        }
+                        .addOnCanceledListener {
+                            continuation.cancel()
+                        }
+                }
             } catch (e: Exception) {
                 Log.e("Location", "Error getting location", e)
             }
@@ -394,7 +398,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                         }
 
                         val (currentWeatherJson, hourlyForecastJson, dailyForecastJson) =
-                            awaitAll(currentWeatherDeferred, hourlyForecastDeferred, dailyForecastDeferred)
+                            awaitAll(
+                                currentWeatherDeferred,
+                                hourlyForecastDeferred,
+                                dailyForecastDeferred
+                            )
 
                         if (currentWeatherJson != null && hourlyForecastJson != null && dailyForecastJson != null) {
                             val weatherForecastJson = buildJsonObject {

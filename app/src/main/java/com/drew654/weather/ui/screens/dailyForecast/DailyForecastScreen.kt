@@ -75,7 +75,9 @@ fun DailyForecastScreen(
     ) {
         Column {
             Spacer(modifier = Modifier.height(20.dp))
-            LazyRow {
+            LazyRow(
+                state = weatherViewModel.dailyForecastScrollState
+            ) {
                 items(1) {
                     Spacer(modifier = Modifier.width(16.dp))
                 }

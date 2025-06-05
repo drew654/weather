@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
@@ -88,6 +89,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
 
     private val _currentWeatherPage = MutableStateFlow(0)
     val currentWeatherPage: StateFlow<Int> = _currentWeatherPage.asStateFlow()
+
+    val dailyForecastScrollState = LazyListState()
 
     private val preferencesDataStore: DataStore<Preferences> = application.preferencesDataStore
 

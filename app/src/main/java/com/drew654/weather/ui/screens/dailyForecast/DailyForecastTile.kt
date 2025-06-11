@@ -21,10 +21,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.drew654.weather.R
 import com.drew654.weather.models.DayForecast
+import com.drew654.weather.models.MeasurementUnit
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
-import com.drew654.weather.utils.showDouble
+import com.drew654.weather.utils.showTemperature
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -37,6 +38,8 @@ fun DailyForecastTile(
     dayForecast: DayForecast
 ) {
     val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+    val temperatureUnit =
+        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
     val dayOfWeek = dayForecast.date.dayOfWeek?.getDisplayName(
         TextStyle.SHORT,
         Locale.getDefault()
@@ -54,10 +57,24 @@ fun DailyForecastTile(
             text = "$dayOfWeek ${dayForecast.date.dayOfMonth}"
         )
         Text(
-            text = "${showDouble(dayForecast.maxTemperature, showDecimal.value)}°",
+            text = "${
+                showTemperature(
+                    dayForecast.maxTemperature,
+                    temperatureUnit.value,
+                    showDecimal.value
+                )
+            }°",
             fontWeight = FontWeight.Bold
         )
-        Text(text = "${showDouble(dayForecast.minTemperature, showDecimal.value)}°")
+        Text(
+            text = "${
+                showTemperature(
+                    dayForecast.minTemperature,
+                    temperatureUnit.value,
+                    showDecimal.value
+                )
+            }°"
+        )
         AsyncImage(
             model = getWeatherIconUrl(
                 weatherCode = dayForecast.weatherCode,

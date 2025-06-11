@@ -21,10 +21,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.drew654.weather.models.MeasurementUnit
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
-import com.drew654.weather.utils.showDouble
+import com.drew654.weather.utils.showTemperature
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +44,8 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val currentWindDirection = weatherForecast.value?.currentWindDirection!!
     val currentRelativeHumidity = weatherForecast.value?.currentRelativeHumidity!!
     val currentDewPoint = weatherForecast.value?.currentDewPoint!!
+    val temperatureUnit =
+        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
 
     Box(
         modifier = Modifier
@@ -57,7 +60,13 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                 Row {
                     Row {
                         Text(
-                            text = "${showDouble(currentTemperature, showDecimal.value)}°",
+                            text = "${
+                                showTemperature(
+                                    currentTemperature,
+                                    temperatureUnit.value,
+                                    showDecimal.value
+                                )
+                            }°",
                             fontSize = 48.sp
                         )
                         AsyncImage(
@@ -88,8 +97,9 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                         )
                         Text(
                             text = "Feels like ${
-                                showDouble(
+                                showTemperature(
                                     currentApparentTemperature,
+                                    temperatureUnit.value,
                                     showDecimal.value
                                 )
                             }°"
@@ -98,11 +108,18 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                 }
                 Text(
                     text = "High: ${
-                        showDouble(
+                        showTemperature(
                             maxTemperature,
+                            temperatureUnit.value,
                             showDecimal.value
                         )
-                    }° • Low: ${showDouble(minTemperature, showDecimal.value)}°"
+                    }° • Low: ${
+                        showTemperature(
+                            minTemperature,
+                            temperatureUnit.value,
+                            showDecimal.value
+                        )
+                    }°"
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Row(

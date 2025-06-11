@@ -109,11 +109,25 @@ fun ktsToMph(kts: Double): Double {
     return kts * 1.15078
 }
 
+fun cToF(c: Double): Double {
+    return (c * 9 / 5) + 32
+}
+
 fun showDouble(value: Double, showDecimal: Boolean): String {
     return if (showDecimal) {
         value.toString()
     } else {
         value.roundToInt().toString()
+    }
+}
+
+fun showTemperature(temperature: Double, unit: String, showDecimal: Boolean): String {
+    return if (unit == MeasurementUnit.Fahrenheit.dataName) {
+        showDouble(cToF(temperature), showDecimal)
+    } else if (unit == MeasurementUnit.Celsius.dataName) {
+        showDouble(temperature, showDecimal)
+    } else {
+        ""
     }
 }
 

@@ -17,9 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.drew654.weather.models.MeasurementUnit
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.ui.components.VerticalProgressBar
-import com.drew654.weather.utils.showDouble
+import com.drew654.weather.utils.showTemperature
 
 @Composable
 fun HumidityTile(
@@ -29,6 +30,8 @@ fun HumidityTile(
     modifier: Modifier = Modifier
 ) {
     val showDouble = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+    val temperatureUnit =
+        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
 
     Box(
         modifier = modifier
@@ -50,7 +53,15 @@ fun HumidityTile(
                         Text(text = "%", modifier = Modifier.align(Alignment.Bottom))
                     }
                     Text(text = "Dew point")
-                    Text(text = "${showDouble(dewPoint, showDouble.value)}°")
+                    Text(
+                        text = "${
+                            showTemperature(
+                                dewPoint,
+                                temperatureUnit.value,
+                                showDouble.value
+                            )
+                        }°"
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Column(

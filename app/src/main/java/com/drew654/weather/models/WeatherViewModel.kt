@@ -293,12 +293,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         weatherDataFields: List<String>,
         options: List<String> = emptyList(),
         windSpeedUnit: String? = null,
-        precipitationUnit: String? = null
     ): Request {
         val url =
             "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&${weatherDataType.value}=${
                 weatherDataFields.joinToString(",")
-            }${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}${if (windSpeedUnit != null) "&wind_speed_unit=$windSpeedUnit" else ""}${if (precipitationUnit != null) "&precipitation_unit=$precipitationUnit" else ""}"
+            }${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}${if (windSpeedUnit != null) "&wind_speed_unit=$windSpeedUnit" else ""}"
         val request = Request.Builder()
             .url(url)
             .build()
@@ -320,7 +319,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                             .writeTimeout(30, TimeUnit.SECONDS)
                             .build()
                         val selectedWindSpeedUnit = windSpeedUnitFlow.first()
-                        val selectedPrecipitationUnit = precipitationUnitFlow.first()
 
                         val currentWeatherDeferred = async {
                             fetchWeatherJson(
@@ -344,7 +342,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                     ),
                                     emptyList(),
                                     selectedWindSpeedUnit,
-                                    selectedPrecipitationUnit
                                 )
                             )?.jsonObject["current"]?.jsonObject
                         }
@@ -390,7 +387,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                     ),
                                     listOf("forecast_days=15", "timezone=auto"),
                                     selectedWindSpeedUnit,
-                                    selectedPrecipitationUnit
                                 )
                             )?.jsonObject["daily"]?.jsonObject
                         }

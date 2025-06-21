@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -292,12 +291,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         weatherDataType: WeatherDataType,
         weatherDataFields: List<String>,
         options: List<String> = emptyList(),
-        windSpeedUnit: String? = null,
     ): Request {
         val url =
             "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&${weatherDataType.value}=${
                 weatherDataFields.joinToString(",")
-            }${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}${if (windSpeedUnit != null) "&wind_speed_unit=$windSpeedUnit" else ""}"
+            }${if (options.isNotEmpty()) "&" else ""}${options.joinToString("&")}"
         val request = Request.Builder()
             .url(url)
             .build()
@@ -318,7 +316,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                             .readTimeout(30, TimeUnit.SECONDS)
                             .writeTimeout(30, TimeUnit.SECONDS)
                             .build()
-                        val selectedWindSpeedUnit = windSpeedUnitFlow.first()
 
                         val currentWeatherDeferred = async {
                             fetchWeatherJson(
@@ -341,7 +338,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                         "wind_direction_10m"
                                     ),
                                     emptyList(),
-                                    selectedWindSpeedUnit,
                                 )
                             )?.jsonObject["current"]?.jsonObject
                         }
@@ -363,7 +359,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                         "wind_direction_10m"
                                     ),
                                     listOf("forecast_days=15", "timezone=auto"),
-                                    selectedWindSpeedUnit
                                 )
                             )?.jsonObject["hourly"]?.jsonObject
                         }
@@ -386,7 +381,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                         "uv_index_max"
                                     ),
                                     listOf("forecast_days=15", "timezone=auto"),
-                                    selectedWindSpeedUnit,
                                 )
                             )?.jsonObject["daily"]?.jsonObject
                         }

@@ -39,6 +39,7 @@ import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.formatTime
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.showDouble
+import com.drew654.weather.utils.showWindSpeed
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -124,7 +125,11 @@ fun DailyForecastScreen(
                     ) {
                         Text(
                             text = "${
-                                showDouble(dailyWindSpeedMax[selectedDay.value], showDecimal.value)
+                                showWindSpeed(
+                                    dailyWindSpeedMax[selectedDay.value],
+                                    windUnit.value,
+                                    showDecimal.value
+                                )
                             } ${
                                 getDisplayNameFromDataName(windUnit.value)
                             } ${

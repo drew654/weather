@@ -26,8 +26,8 @@ import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
-import com.drew654.weather.utils.showDouble
 import com.drew654.weather.utils.showTemperature
+import com.drew654.weather.utils.showWindSpeed
 
 @Composable
 fun HourRow(
@@ -119,7 +119,7 @@ fun HourRow(
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = "${showDouble(windSpeed, showDecimal.value)} ${
+                text = "${showWindSpeed(windSpeed, windUnit.value, showDecimal.value)} ${
                     getDisplayNameFromDataName(
                         windUnit.value
                     )

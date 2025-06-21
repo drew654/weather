@@ -85,24 +85,20 @@ fun calculateStartIndexForDay(targetDay: Int, currentHour: Int): Int {
     }
 }
 
-fun mphToKph(mph: Double): Double {
-    return mph * 1.60934
-}
-
 fun kphToMph(kph: Double): Double {
     return kph / 1.60934
 }
 
-fun mphToMs(mph: Double): Double {
-    return mph / 2.23694
+fun kphToMs(kph: Double): Double {
+    return kph / 3.6
+}
+
+fun kphToKts(kph: Double): Double {
+    return kph / 1.852
 }
 
 fun msToMph(ms: Double): Double {
     return ms * 2.23694
-}
-
-fun mphToKts(mph: Double): Double {
-    return mph / 1.15078
 }
 
 fun ktsToMph(kts: Double): Double {
@@ -126,6 +122,20 @@ fun showTemperature(temperature: Double, unit: String, showDecimal: Boolean): St
         showDouble(cToF(temperature), showDecimal)
     } else if (unit == MeasurementUnit.Celsius.dataName) {
         showDouble(temperature, showDecimal)
+    } else {
+        ""
+    }
+}
+
+fun showWindSpeed(windSpeed: Double, unit: String, showDecimal: Boolean): String {
+    return if (unit == MeasurementUnit.Kph.dataName) {
+        showDouble(windSpeed, showDecimal)
+    } else if (unit == MeasurementUnit.Mph.dataName) {
+        showDouble(kphToMph(windSpeed), showDecimal)
+    } else if (unit == MeasurementUnit.Mps.dataName) {
+        showDouble(kphToMs(windSpeed), showDecimal)
+    } else if (unit == MeasurementUnit.Knots.dataName) {
+        showDouble(kphToKts(windSpeed), showDecimal)
     } else {
         ""
     }

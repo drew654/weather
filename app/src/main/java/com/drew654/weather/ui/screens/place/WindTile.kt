@@ -27,7 +27,7 @@ import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDa
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getBeaufortDescription
-import com.drew654.weather.utils.showDouble
+import com.drew654.weather.utils.showWindSpeed
 
 @Composable
 fun WindTile(
@@ -56,7 +56,13 @@ fun WindTile(
                     verticalArrangement = Arrangement.Bottom
                 ) {
                     Row {
-                        Text(text = showDouble(windSpeed, showDecimal.value), fontSize = 24.sp)
+                        Text(
+                            text = showWindSpeed(
+                                windSpeed,
+                                windSpeedUnit.value,
+                                showDecimal.value
+                            ), fontSize = 24.sp
+                        )
                         Text(
                             text = " ${getDisplayNameFromDataName(windSpeedUnit.value)}",
                             modifier = Modifier.align(Alignment.Bottom)

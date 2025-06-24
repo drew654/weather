@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +37,8 @@ import com.drew654.weather.models.WeatherViewModel
 @Composable
 fun LocationSearchBar(
     weatherViewModel: WeatherViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    hourlyListState: LazyListState
 ) {
     val focusManager = LocalFocusManager.current
     val selectedPlace = weatherViewModel.selectedPlace.collectAsState()
@@ -138,7 +140,9 @@ fun LocationSearchBar(
                             name = "Current Location",
                             latitude = currentLocation.value?.latitude!!,
                             longitude = currentLocation.value?.longitude!!
-                        )
+                        ),
+                        isManagingLocations = false,
+                        hourlyListState = hourlyListState
                     )
                 }
             }
@@ -168,14 +172,17 @@ fun LocationSearchBar(
                     SearchOption(
                         weatherViewModel = weatherViewModel,
                         place = places.value[it],
-                        isManagingLocations = isManagingLocations.value
+                        isManagingLocations = isManagingLocations.value,
+                        hourlyListState = hourlyListState
                     )
                 }
             } else {
                 items(fetchedPlaces.value.size) {
                     SearchOption(
                         weatherViewModel = weatherViewModel,
-                        place = fetchedPlaces.value[it]
+                        place = fetchedPlaces.value[it],
+                        isManagingLocations = false,
+                        hourlyListState = hourlyListState
                     )
                 }
             }

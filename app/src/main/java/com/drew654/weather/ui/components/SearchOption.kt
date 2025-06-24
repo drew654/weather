@@ -4,11 +4,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -17,14 +19,20 @@ import androidx.compose.ui.unit.dp
 import com.drew654.weather.R
 import com.drew654.weather.models.Place
 import com.drew654.weather.models.WeatherViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchOption(
     weatherViewModel: WeatherViewModel,
     place: Place,
-    isManagingLocations: Boolean = false
+    isManagingLocations: Boolean,
+    hourlyListState: LazyListState
 ) {
     val places = weatherViewModel.places.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val dailyForecastScrollState = weatherViewModel.dailyForecastScrollState
+    val resetScreensOnLocationChange =
+        weatherViewModel.resetScreensOnLocationChangeFlow.collectAsState(initial = false)
 
     Row(
         modifier = Modifier
@@ -36,6 +44,13 @@ fun SearchOption(
                 weatherViewModel.setSearchPlaceName("")
                 weatherViewModel.clearFetchedPlaces()
                 weatherViewModel.setIsSearching(false)
+                if (resetScreensOnLocationChange.value) {
+                    coroutineScope.launch {
+                        weatherViewModel.setSelectedDay(0)
+                        hourlyListState.scrollToItem(0)
+                        dailyForecastScrollState.scrollToItem(0)
+                    }
+                }
             }
             .padding(vertical = 16.dp)
     ) {

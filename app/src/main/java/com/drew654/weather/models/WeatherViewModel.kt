@@ -99,6 +99,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         val temperatureUnit = stringPreferencesKey("temperature_unit")
         val windSpeedUnit = stringPreferencesKey("wind_speed_unit")
         val precipitationUnit = stringPreferencesKey("precipitation_unit")
+        val resetScreensOnLocationChange = booleanPreferencesKey("reset_screens_on_location_change")
     }
 
     val swipeToChangeTabsFlow: Flow<Boolean> = preferencesDataStore.data.map { preferences ->
@@ -120,6 +121,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     val precipitationUnitFlow: Flow<String> = preferencesDataStore.data.map { preferences ->
         preferences[precipitationUnit] ?: MeasurementUnit.Inch.dataName
     }
+
+    val resetScreensOnLocationChangeFlow: Flow<Boolean> =
+        preferencesDataStore.data.map { preferences ->
+            preferences[resetScreensOnLocationChange] == true
+        }
 
     init {
         viewModelScope.launch {
@@ -473,6 +479,12 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     suspend fun updatePrecipitationUnit(value: String) {
         preferencesDataStore.edit { preferences ->
             preferences[precipitationUnit] = value
+        }
+    }
+
+    suspend fun updateResetScreensOnLocationChange(value: Boolean) {
+        preferencesDataStore.edit { preferences ->
+            preferences[resetScreensOnLocationChange] = value
         }
     }
 }

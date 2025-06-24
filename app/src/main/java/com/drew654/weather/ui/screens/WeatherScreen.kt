@@ -55,7 +55,8 @@ fun WeatherScreen(
         topBar = {
             LocationSearchBar(
                 weatherViewModel = weatherViewModel,
-                navController = navController
+                navController = navController,
+                hourlyListState = hourlyListState
             )
         },
         bottomBar = {

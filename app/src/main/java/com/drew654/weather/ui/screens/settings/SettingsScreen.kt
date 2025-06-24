@@ -39,9 +39,12 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
     val swipeToChangeTabs = weatherViewModel.swipeToChangeTabsFlow.collectAsState(initial = false)
     val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+    val resetScreensOnLocationChange =
+        weatherViewModel.resetScreensOnLocationChangeFlow.collectAsState(initial = false)
     val preferences = listOf(
         "Swipe to change tabs" to swipeToChangeTabs.value,
         "Show decimals" to showDecimal.value,
+        "Reset screen on location change" to resetScreensOnLocationChange.value
     )
     val temperatureUnit =
         weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
@@ -110,6 +113,9 @@ fun SettingsScreen(
                             when (it) {
                                 0 -> weatherViewModel.updateSwipeToChangeTabs(!swipeToChangeTabs.value)
                                 1 -> weatherViewModel.updateShowDecimal(!showDecimal.value)
+                                2 -> weatherViewModel.updateResetScreensOnLocationChange(
+                                    !resetScreensOnLocationChange.value
+                                )
                             }
                         }
                     }

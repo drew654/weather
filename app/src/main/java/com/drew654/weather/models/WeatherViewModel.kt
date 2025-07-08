@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -255,38 +256,43 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         return _selectedPlace.value
     }
 
-    fun fetchPlaces(name: String) {
+    fun fetchPlaces(name: String, isOfflineMode: Boolean) {
         searchJob?.cancel()
 
         searchJob = viewModelScope.launch {
             delay(300)
-            withContext(Dispatchers.IO) {
-                val client = OkHttpClient()
-                val url = "https://nominatim.openstreetmap.org/search?q=$name&format=json"
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
+            if (isOfflineMode) {
+                val places = dataStore.data.first()
+                _fetchedPlaces.value = places.filter { it.name.contains(name, true) }
+            } else {
+                withContext(Dispatchers.IO) {
+                    val client = OkHttpClient()
+                    val url = "https://nominatim.openstreetmap.org/search?q=$name&format=json"
+                    val request = Request.Builder()
+                        .url(url)
+                        .build()
 
-                try {
-                    client.newCall(request).execute().use { response ->
-                        if (!response.isSuccessful) {
-                            throw IOException("Unexpected code $response")
-                        }
-
-                        val responseBody = response.body?.string() ?: ""
-                        val jsonArray = Json.parseToJsonElement(responseBody).jsonArray
-                        if (jsonArray.isNotEmpty()) {
-                            val places = jsonArray.map {
-                                val latitude = it.jsonObject["lat"]?.jsonPrimitive?.double
-                                val longitude = it.jsonObject["lon"]?.jsonPrimitive?.double
-                                val name = it.jsonObject["display_name"]?.jsonPrimitive?.content
-                                Place(name ?: "", latitude ?: 0.0, longitude ?: 0.0)
+                    try {
+                        client.newCall(request).execute().use { response ->
+                            if (!response.isSuccessful) {
+                                throw IOException("Unexpected code $response")
                             }
-                            _fetchedPlaces.value = places
+
+                            val responseBody = response.body?.string() ?: ""
+                            val jsonArray = Json.parseToJsonElement(responseBody).jsonArray
+                            if (jsonArray.isNotEmpty()) {
+                                val places = jsonArray.map {
+                                    val latitude = it.jsonObject["lat"]?.jsonPrimitive?.double
+                                    val longitude = it.jsonObject["lon"]?.jsonPrimitive?.double
+                                    val name = it.jsonObject["display_name"]?.jsonPrimitive?.content
+                                    Place(name ?: "", latitude ?: 0.0, longitude ?: 0.0)
+                                }
+                                _fetchedPlaces.value = places
+                            }
                         }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
         }

@@ -52,13 +52,14 @@ fun LocationSearchBar(
     val fetchedPlaces = weatherViewModel.fetchedPlaces.collectAsState()
     val currentLocation = weatherViewModel.currentLocation.collectAsState()
     val isManagingLocations = remember { mutableStateOf(false) }
+    val isOfflineMode = weatherViewModel.isOfflineMode.collectAsState()
 
     val inputField = @Composable {
         SearchBarDefaults.InputField(
             query = searchPlaceName.value,
             onQueryChange = {
                 weatherViewModel.setSearchPlaceName(it)
-                weatherViewModel.fetchPlaces(it)
+                    weatherViewModel.fetchPlaces(it, isOfflineMode.value)
             },
             onSearch = {
                 focusManager.clearFocus()

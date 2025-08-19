@@ -171,7 +171,11 @@ object OfflineWeather {
     ): Double? {
         val day = currentTime.toLocalDate()
         val index = weatherForecast.days.indexOf(day)
-        return weatherForecast.dailyMaxTemperature[index]
+        return if (index == -1) {
+            null
+        } else {
+            weatherForecast.dailyMaxTemperature[index]
+        }
     }
 
     fun getOfflineMinTemperature(
@@ -180,7 +184,11 @@ object OfflineWeather {
     ): Double? {
         val day = currentTime.toLocalDate()
         val index = weatherForecast.days.indexOf(day)
-        return weatherForecast.dailyMinTemperature[index]
+        return if (index == -1) {
+            null
+        } else {
+            weatherForecast.dailyMinTemperature[index]
+        }
     }
 
     fun getOfflineWeatherDays(
@@ -189,7 +197,11 @@ object OfflineWeather {
     ): List<LocalDate> {
         val day = currentTime.toLocalDate()
         val index = weatherForecast.days.indexOf(day)
-        return weatherForecast.days.subList(index, weatherForecast.days.size)
+        return if (index == -1) {
+            emptyList()
+        } else {
+            weatherForecast.days.subList(index, weatherForecast.days.size)
+        }
     }
 
     fun getOfflineIsDay(

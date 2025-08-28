@@ -33,6 +33,7 @@ import com.drew654.weather.R
 import com.drew654.weather.models.DayForecast
 import com.drew654.weather.models.MeasurementUnit
 import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
+import com.drew654.weather.models.MeasurementUnit.Companion.getObjectFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.calculateStartIndexForDay
 import com.drew654.weather.utils.degToHdg
@@ -68,6 +69,8 @@ fun DailyForecastScreen(
     val dailyWindSpeedMax = weatherForecast.value?.dailyWindSpeedMax!!
     val dailyWindDirectionDominant = weatherForecast.value?.dailyWindDirectionDominant!!
     val dailyUvIndexMax = weatherForecast.value?.dailyUvIndexMax!!
+    val temperatureUnit =
+        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
 
     Box(
         modifier = Modifier
@@ -96,7 +99,6 @@ fun DailyForecastScreen(
                         uvIndexMax = dailyUvIndexMax[index]
                     )
                     DailyForecastTile(
-                        weatherViewModel = weatherViewModel,
                         context = context,
                         onClick = {
                             weatherViewModel.setSelectedDay(index)
@@ -104,7 +106,9 @@ fun DailyForecastScreen(
                         isSelected = {
                             selectedDay.value == index
                         },
-                        dayForecast = dayForecast
+                        dayForecast = dayForecast,
+                        temperatureUnit = getObjectFromDataName(temperatureUnit.value)!!,
+                        showDecimal = showDecimal.value
                     )
                 }
                 items(1) {

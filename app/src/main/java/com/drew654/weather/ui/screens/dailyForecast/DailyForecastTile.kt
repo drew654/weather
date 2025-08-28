@@ -11,7 +11,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +21,6 @@ import coil.compose.AsyncImage
 import com.drew654.weather.R
 import com.drew654.weather.models.DayForecast
 import com.drew654.weather.models.MeasurementUnit
-import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
 import com.drew654.weather.utils.showTemperature
@@ -31,15 +29,13 @@ import java.util.Locale
 
 @Composable
 fun DailyForecastTile(
-    weatherViewModel: WeatherViewModel,
     context: Context,
     onClick: () -> Unit,
     isSelected: () -> Boolean,
-    dayForecast: DayForecast
+    dayForecast: DayForecast,
+    temperatureUnit: MeasurementUnit,
+    showDecimal: Boolean
 ) {
-    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
-    val temperatureUnit =
-        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
     val dayOfWeek = dayForecast.date.dayOfWeek?.getDisplayName(
         TextStyle.SHORT,
         Locale.getDefault()
@@ -60,8 +56,8 @@ fun DailyForecastTile(
             text = "${
                 showTemperature(
                     dayForecast.maxTemperature,
-                    temperatureUnit.value,
-                    showDecimal.value
+                    temperatureUnit.dataName,
+                    showDecimal
                 )
             }°",
             fontWeight = FontWeight.Bold
@@ -70,8 +66,8 @@ fun DailyForecastTile(
             text = "${
                 showTemperature(
                     dayForecast.minTemperature,
-                    temperatureUnit.value,
-                    showDecimal.value
+                    temperatureUnit.dataName,
+                    showDecimal
                 )
             }°"
         )

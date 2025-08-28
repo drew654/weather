@@ -29,5 +29,11 @@ sealed class MeasurementUnit(val dataName: String, val displayName: String) {
                 it.objectInstance?.dataName == dataName
             }?.objectInstance?.displayName ?: ""
         }
+
+        fun getObjectFromDataName(dataName: String): MeasurementUnit? {
+            return MeasurementUnit::class.sealedSubclasses.firstOrNull {
+                it.objectInstance?.dataName == dataName
+            }?.objectInstance
+        }
     }
 }

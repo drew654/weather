@@ -14,6 +14,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.drew654.weather.models.MeasurementUnit
+import com.drew654.weather.models.MeasurementUnit.Companion.getObjectFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.ui.screens.place.HourRow
 import com.drew654.weather.utils.formatHour
@@ -37,6 +39,11 @@ fun HourlyWeatherScreen(
     val hourlyWindDirection = weatherForecast.value?.hourlyWindDirection!!
     val dailySunrise = weatherForecast.value?.dailySunrise!!
     val dailySunset = weatherForecast.value?.dailySunset!!
+    val windUnit =
+        weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
+    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
+    val temperatureUnit =
+        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
 
     Box(
         modifier = Modifier
@@ -61,7 +68,6 @@ fun HourlyWeatherScreen(
                     }
                     if (it > currentHour) {
                         HourRow(
-                            weatherViewModel = weatherViewModel,
                             hour = formatHour(hours[it], is24HourFormat(context)),
                             weatherCode = hourlyWeatherCode[it],
                             precipitationProbability = hourlyPrecipitationProbability[it],
@@ -72,7 +78,10 @@ fun HourlyWeatherScreen(
                                 hour = hours[it].hour,
                                 sunrise = dailySunrise[0],
                                 sunset = dailySunset[0]
-                            )
+                            ),
+                            windUnit = getObjectFromDataName(windUnit.value)!!,
+                            showDecimal = showDecimal.value,
+                            temperatureUnit = getObjectFromDataName(temperatureUnit.value)!!
                         )
                     }
                 }

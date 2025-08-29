@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -22,7 +21,6 @@ import coil.compose.AsyncImage
 import com.drew654.weather.R
 import com.drew654.weather.models.MeasurementUnit
 import com.drew654.weather.models.MeasurementUnit.Companion.getDisplayNameFromDataName
-import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.degToHdg
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
@@ -31,23 +29,20 @@ import com.drew654.weather.utils.showWindSpeed
 
 @Composable
 fun HourRow(
-    weatherViewModel: WeatherViewModel,
     hour: String,
     weatherCode: Int,
     precipitationProbability: Int,
     temperature: Double,
     windSpeed: Double,
     windDirection: Int,
-    isDay: Boolean
+    isDay: Boolean,
+    windUnit: MeasurementUnit,
+    showDecimal: Boolean,
+    temperatureUnit: MeasurementUnit
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-    val windUnit =
-        weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
-    val showDecimal = weatherViewModel.showDecimalFlow.collectAsState(initial = false)
-    val temperatureUnit =
-        weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -101,7 +96,7 @@ fun HourRow(
             Spacer(Modifier.width(screenWidth * 0.45f))
             Text(
                 text = "${
-                    showTemperature(temperature, temperatureUnit.value, showDecimal.value)
+                    showTemperature(temperature, temperatureUnit.dataName, showDecimal)
                 }°"
             )
         }
@@ -119,9 +114,9 @@ fun HourRow(
                     .align(Alignment.CenterVertically)
             )
             Text(
-                text = "${showWindSpeed(windSpeed, windUnit.value, showDecimal.value)} ${
+                text = "${showWindSpeed(windSpeed, windUnit.dataName, showDecimal)} ${
                     getDisplayNameFromDataName(
-                        windUnit.value
+                        windUnit.dataName
                     )
                 } ${
                     degToHdg(windDirection)

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.drew654.weather.models.MeasurementUnit
+import com.drew654.weather.models.MeasurementUnit.Companion.getObjectFromDataName
 import com.drew654.weather.models.WeatherViewModel
 import com.drew654.weather.utils.getWeatherDescription
 import com.drew654.weather.utils.getWeatherIconUrl
@@ -132,9 +133,10 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     HumidityTile(
-                        weatherViewModel = weatherViewModel,
                         humidity = currentRelativeHumidity,
                         dewPoint = currentDewPoint,
+                        showDecimal = showDecimal.value,
+                        temperatureUnit = getObjectFromDataName(temperatureUnit.value)!!
                     )
                 }
             }

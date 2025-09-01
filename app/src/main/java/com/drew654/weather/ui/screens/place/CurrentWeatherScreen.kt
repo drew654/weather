@@ -47,6 +47,7 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
     val currentDewPoint = weatherForecast.value?.currentDewPoint!!
     val temperatureUnit =
         weatherViewModel.temperatureUnitFlow.collectAsState(initial = MeasurementUnit.Fahrenheit.dataName)
+    val windSpeedUnit = weatherViewModel.windSpeedUnitFlow.collectAsState(initial = MeasurementUnit.Mph.dataName)
 
     Box(
         modifier = Modifier
@@ -129,7 +130,8 @@ fun CurrentWeatherScreen(weatherViewModel: WeatherViewModel) {
                     WindTile(
                         windSpeed = currentWindSpeed,
                         windDirection = currentWindDirection,
-                        weatherViewModel = weatherViewModel
+                        windSpeedUnit = getObjectFromDataName(windSpeedUnit.value)!!,
+                        showDecimal = showDecimal.value
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     HumidityTile(

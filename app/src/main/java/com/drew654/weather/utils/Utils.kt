@@ -11,6 +11,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import kotlin.math.round
 import kotlin.math.roundToInt
 
 fun degToHdg(deg: Int): String {
@@ -111,7 +112,7 @@ fun cToF(c: Double): Double {
 
 fun showDouble(value: Double, showDecimal: Boolean): String {
     return if (showDecimal) {
-        value.toString()
+        (round(value * 10) / 10.0).toString()
     } else {
         value.roundToInt().toString()
     }
